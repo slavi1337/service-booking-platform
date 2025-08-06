@@ -1,16 +1,25 @@
 package is.symphony.service_booking_platform.controller;
 
+import java.time.LocalDate;
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import is.symphony.service_booking_platform.model.Booking;
 import is.symphony.service_booking_platform.model.TimeSlot;
 import is.symphony.service_booking_platform.service.BookingService;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDate;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -45,7 +54,7 @@ public class BookingController {
             @RequestBody BookingRequest request) {
         try {
             bookingService.bookTimeSlot(timeSlotId, request.getClientEmail(), request.getServiceName());
-            return ResponseEntity.ok("Termin je uspešno rezervisan.");
+            return ResponseEntity.ok("Termin je uspješno rezervisan.");
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }
@@ -69,4 +78,34 @@ public class BookingController {
         private String clientEmail;
         private String serviceName;
     }
+
+    @DeleteMapping("/bookings/{id}")
+    public ResponseEntity<String> cancelBooking(@PathVariable("id")Long bookingId){
+        try {
+            bookingService.cancelBooking(bookingId);
+            return ResponseEntity.ok("Rezervacija je uspjesno otkazana");
+        } catch ( IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+        @PatchMapping("/bookings/{id}")
+    public ResponseEntity<String> updateBooking(
+            @PathVariable("id") Long bookingId,
+            @RequestBody UpdateBookingRequest request) {
+        try {
+            bookingService.updateBookingTimeSlot(bookingId, request.getNewTimeSlotId());
+            return ResponseEntity.ok("Termin je uspješno promijenjen.");
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        } catch (IllegalArgumentException e) { 
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @Data
+    static class UpdateBookingRequest {
+        private Long newTimeSlotId;
+    }
+    
 }
