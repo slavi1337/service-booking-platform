@@ -2,12 +2,11 @@ package is.symphony.service_booking_platform.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table(name = "appointments")
-public class Appointment {
+@Table(name = "bookings")
+public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -17,7 +16,8 @@ public class Appointment {
     
     @Column(nullable = false)
     private String clientEmail;
-
-    @Column(nullable = false, unique = true)
-    private LocalDateTime bookingTime;
+    
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "time_slot_id", referencedColumnName = "id")
+    private TimeSlot timeSlot;
 }
