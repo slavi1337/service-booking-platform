@@ -1,6 +1,7 @@
 import React from 'react'
 
 import { Container, Typography, TextField, Button, Box } from '@mui/material'
+import { Link } from 'react-router-dom'
 
 const LoginPage = () => {
   const handleLogin = (event) => {
@@ -44,6 +45,14 @@ const LoginPage = () => {
           <Button fullWidth sx={{ mt: 3, mb: 2 }} type="submit" variant="contained">
             Log in
           </Button>
+
+          <Box textAlign="center">
+            <Link style={{ color: 'inherit', textDecoration: 'none' }} to="/register">
+              <Typography color="primary" variant="body2">
+                Do not have an account? Register!
+              </Typography>
+            </Link>
+          </Box>
         </Box>
       </Box>
     </Container>

@@ -84,10 +84,10 @@ const RegisterPage = () => {
           />
 
           <FormControl fullWidth margin="normal">
-            <InputLabel id="role-select-label">Ja sam...</InputLabel>
+            <InputLabel id="role-select-label">I am...</InputLabel>
             <Select
               id="role-select"
-              label="Ja sam..."
+              label="I am..."
               labelId="role-select-label"
               name="role"
               onChange={handleChange}
