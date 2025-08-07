@@ -52,6 +52,28 @@ const RegisterPage = () => {
           <TextField
             autoFocus
             fullWidth
+            id="name"
+            label="name"
+            margin="normal"
+            name="name"
+            onChange={handleChange}
+            required
+            value={formData.username}
+          />
+
+          <TextField
+            fullWidth
+            id="surname"
+            label="surname"
+            margin="normal"
+            name="surname"
+            onChange={handleChange}
+            required
+            value={formData.username}
+          />
+
+          <TextField
+            fullWidth
             id="username"
             label="username"
             margin="normal"
