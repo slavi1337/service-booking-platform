@@ -11,11 +11,13 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String serviceName;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "service_id", nullable = false)
+    private Service service;
     
-    @Column(nullable = false)
-    private String clientEmail;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "client_id", nullable = false)
+    private User client;
     
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "time_slot_id", referencedColumnName = "id")
