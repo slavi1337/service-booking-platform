@@ -16,7 +16,7 @@ export default defineConfig([
     extends: [
       'js/recommended',
       importPlugin.flatConfigs.recommended,
-      importPlugin.flatConfigs.typescript,
+      //importPlugin.flatConfigs.typescript,
     ],
     languageOptions: { globals: globals.browser },
     rules: {
