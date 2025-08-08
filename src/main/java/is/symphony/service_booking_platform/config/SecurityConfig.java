@@ -6,8 +6,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -20,11 +18,6 @@ import java.util.Arrays;
 public class SecurityConfig {
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(Customizer.withDefaults())
@@ -35,6 +28,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/register", "/api/auth/**").permitAll()
 
                         .requestMatchers(HttpMethod.GET, "/api/slots/available").permitAll()
+
+                        .requestMatchers(HttpMethod.GET, "/api/services").authenticated()
                         
                         .requestMatchers(HttpMethod.POST, "/api/services").hasRole("TENANT")
                         

@@ -27,7 +27,7 @@ public class BookingController {
             @RequestBody BookingRequest request) {
         try {
             bookingService.bookTimeSlot(timeSlotId, request.getClientId(), request.getServiceId());
-            return ResponseEntity.status(HttpStatus.CREATED).body("Termin je uspešno rezervisan.");
+            return ResponseEntity.status(HttpStatus.CREATED).body("Successfully booked the time slot.");
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (IllegalStateException e) {
@@ -55,7 +55,7 @@ public class BookingController {
             @RequestBody UpdateBookingRequest request) {
         try {
             bookingService.updateBookingTimeSlot(bookingId, request.getNewTimeSlotId());
-            return ResponseEntity.ok("Termin je uspešno promenjen.");
+            return ResponseEntity.ok("Successfully updated the booking.");
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (IllegalStateException e) {

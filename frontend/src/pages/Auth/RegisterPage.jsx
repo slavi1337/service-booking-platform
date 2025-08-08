@@ -1,133 +1,181 @@
 import React, { useState } from 'react'
-
 import {
   Container,
   Typography,
   TextField,
   Button,
   Box,
+  Alert,
   FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
+  FormLabel,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
+  FormHelperText,
 } from '@mui/material'
-import { Link } from 'react-router-dom'
+import { Controller, useForm } from 'react-hook-form'
+import { Link, useNavigate } from 'react-router-dom'
+import { registerUser } from '../../api'
+import { registerSchema } from './registerSchema'
+import { zodResolver } from '@hookform/resolvers/zod'
 
 const RegisterPage = () => {
-  const [formData, setFormData] = useState({
-    username: '',
-    email: '',
-    password: '',
-    role: 'USER',
+  const {
+    handleSubmit,
+    control,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      password: '',
+      role: 'ROLE_USER',
+    },
   })
+  const [serverError, setServerError] = useState(null)
+  const navigate = useNavigate()
 
-  const handleChange = (event) => {
-    const { name, value } = event.target
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }))
-  }
-
-  const handleRegister = (event) => {
-    event.preventDefault()
-    console.log('Registration info: ', formData)
+  const onSubmit = async (data) => {
+    setServerError(null)
+    try {
+      await registerUser(data)
+      navigate('/login')
+    } catch (err) {
+      let errorMessage = 'An error occurred while registering. Please try again later.'
+      if (err.response) {
+        if (
+          err.response.status === 409 ||
+          err.response.data?.message?.includes('Duplicate entry')
+        ) {
+          errorMessage = 'Email address is already in use.'
+        } else {
+          errorMessage = err.response.data?.message || errorMessage
+        }
+      }
+      setServerError(errorMessage)
+    }
   }
 
   return (
     <Container maxWidth="xs">
-      <Box
-        sx={{
-          marginTop: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}
-      >
+      <Box sx={{ marginTop: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <Typography component="h1" variant="h5">
-          Registration
+          Register
         </Typography>
 
-        <Box component="form" onSubmit={handleRegister} sx={{ mt: 1 }}>
-          <TextField
-            autoFocus
-            fullWidth
-            id="name"
-            label="name"
-            margin="normal"
-            name="name"
-            onChange={handleChange}
-            required
-            value={formData.username}
-          />
+        {serverError && (
+          <Alert severity="error" sx={{ mt: 2, width: '100%' }}>
+            {serverError}
+          </Alert>
+        )}
 
-          <TextField
-            fullWidth
-            id="surname"
-            label="surname"
-            margin="normal"
-            name="surname"
-            onChange={handleChange}
-            required
-            value={formData.username}
-          />
+        <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ mt: 1 }} noValidate>
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <Controller
+              name="firstName"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  margin="normal"
+                  fullWidth
+                  id="firstName"
+                  label="First Name"
+                  autoFocus
+                  error={!!errors.firstName}
+                  helperText={errors.firstName ? errors.firstName.message : ''}
+                />
+              )}
+            />
+            <Controller
+              name="lastName"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  margin="normal"
+                  fullWidth
+                  id="lastName"
+                  label="Last Name"
+                  error={!!errors.lastName}
+                  helperText={errors.lastName ? errors.lastName.message : ''}
+                />
+              )}
+            />
+          </Box>
 
-          <TextField
-            fullWidth
-            id="username"
-            label="username"
-            margin="normal"
-            name="username"
-            onChange={handleChange}
-            required
-            value={formData.username}
-          />
-
-          <TextField
-            fullWidth
-            id="email"
-            label="Email Address"
-            margin="normal"
+          <Controller
             name="email"
-            onChange={handleChange}
-            required
-            value={formData.email}
-          />
-          <TextField
-            fullWidth
-            id="password"
-            label="Password"
-            margin="normal"
-            name="password"
-            onChange={handleChange}
-            required
-            type="password"
-            value={formData.password}
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                margin="normal"
+                required
+                fullWidth
+                id="email"
+                label="Email Address"
+                autoComplete="email"
+                error={!!errors.email}
+                helperText={errors.email ? errors.email.message : ''}
+              />
+            )}
           />
 
-          <FormControl fullWidth margin="normal">
-            <InputLabel id="role-select-label">I am...</InputLabel>
-            <Select
-              id="role-select"
-              label="I am..."
-              labelId="role-select-label"
+          <Controller
+            name="password"
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                margin="normal"
+                required
+                fullWidth
+                name="password"
+                label="Password"
+                type="password"
+                id="password"
+                error={!!errors.password}
+                helperText={errors.password ? errors.password.message : ''}
+              />
+            )}
+          />
+
+          <FormControl component="fieldset" error={!!errors.role} sx={{ mt: 2 }}>
+            <FormLabel component="legend">I am a...</FormLabel>
+            <Controller
               name="role"
-              onChange={handleChange}
-              value={formData.role}
-            >
-              <MenuItem value="USER">standard user</MenuItem>
-              <MenuItem value="TENANT">Tenant (Service provider)</MenuItem>
-            </Select>
+              control={control}
+              render={({ field }) => (
+                <RadioGroup {...field} row>
+                  <FormControlLabel value="ROLE_USER" control={<Radio />} label="Standard User" />
+                  <FormControlLabel
+                    value="ROLE_TENANT"
+                    control={<Radio />}
+                    label="Service Provider"
+                  />
+                </RadioGroup>
+              )}
+            />
+            <FormHelperText>{errors.role ? errors.role.message : ''}</FormHelperText>
           </FormControl>
 
-          <Button fullWidth sx={{ mt: 3, mb: 2 }} type="submit" variant="contained">
-            Register
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Registering...' : 'Register'}
           </Button>
 
           <Box textAlign="center">
-            <Link style={{ color: 'inherit', textDecoration: 'none' }} to="/login">
+            <Link to="/login" style={{ textDecoration: 'none' }}>
               <Typography color="primary" variant="body2">
-                Already have an account? Login
+                Already have an account? Log in
               </Typography>
             </Link>
           </Box>

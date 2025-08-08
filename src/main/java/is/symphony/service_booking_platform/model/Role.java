@@ -1,4 +1,3 @@
-// LOKACIJA: model/Role.java
 package is.symphony.service_booking_platform.model;
 
 public enum Role {

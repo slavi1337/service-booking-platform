@@ -1,4 +1,3 @@
-// LOKACIJA: src/main/java/is/symphony/service_booking_platform/service/UserService.java
 package is.symphony.service_booking_platform.service;
 
 import is.symphony.service_booking_platform.model.User;

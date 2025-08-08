@@ -46,19 +46,19 @@ public class BookingService {
     @Transactional
     public Booking bookTimeSlot(Long timeSlotId, Long clientId, Long serviceId) {
         TimeSlot timeSlot = timeSlotRepository.findById(timeSlotId)
-                .orElseThrow(() -> new EntityNotFoundException("Termin sa ID-jem " + timeSlotId + " ne postoji."));
+                .orElseThrow(() -> new EntityNotFoundException("Time slot " + timeSlotId + " not found."));
 
         User client = userRepository.findById(clientId)
-                .orElseThrow(() -> new EntityNotFoundException("Klijent sa ID-jem " + clientId + " ne postoji."));
+                .orElseThrow(() -> new EntityNotFoundException("Client " + clientId + " not found."));
 
         Service service = serviceRepository.findById(serviceId)
                 .orElseThrow(() -> new EntityNotFoundException("Usluga sa ID-jem " + serviceId + " ne postoji."));
 
         if (timeSlot.getSlotTime().isBefore(LocalDateTime.now())) {
-            throw new IllegalStateException("Ne možete rezervisati termin koji je već prošao.");
+            throw new IllegalStateException("Cannot book a time slot that has already passed.");
         }
         if (timeSlot.isBooked()) {
-            throw new IllegalStateException("Ovaj termin je već rezervisan. Molimo izaberite drugi.");
+            throw new IllegalStateException("This time slot is already booked. Please choose another.");
         }
 
         timeSlot.setBooked(true);
@@ -75,10 +75,10 @@ public class BookingService {
     @Transactional
     public void cancelBooking(Long bookingId) {
         Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new EntityNotFoundException("Rezervacija sa ID-jem " + bookingId + " ne postoji."));
+                .orElseThrow(() -> new EntityNotFoundException("Booking " + bookingId + " not found."));
 
         if (booking.getTimeSlot().getSlotTime().isBefore(LocalDateTime.now())) {
-            throw new IllegalStateException("Ne možete otkazati rezervaciju koja je već prošla.");
+            throw new IllegalStateException("Cannot cancel a booking that has already passed.");
         }
 
         TimeSlot timeSlot = booking.getTimeSlot();
@@ -90,23 +90,23 @@ public class BookingService {
     @Transactional
     public void updateBookingTimeSlot(Long bookingId, Long newTimeSlotId) {
         Booking bookingToUpdate = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new EntityNotFoundException("Rezervacija sa ID-jem " + bookingId + " ne postoji."));
+                .orElseThrow(() -> new EntityNotFoundException("Booking " + bookingId + " not found."));
 
         TimeSlot newTimeSlot = timeSlotRepository.findById(newTimeSlotId)
-                .orElseThrow(() -> new EntityNotFoundException("Novi termin sa ID-jem " + newTimeSlotId + " ne postoji."));
+                .orElseThrow(() -> new EntityNotFoundException("New time slot " + newTimeSlotId + " not found."));
 
         TimeSlot oldTimeSlot = bookingToUpdate.getTimeSlot();
         
         if (oldTimeSlot.getId().equals(newTimeSlot.getId())) {
-            throw new IllegalStateException("Ne možete promeniti termin na onaj koji je već rezervisan.");
+            throw new IllegalStateException("Cannot change the time slot to one that is already booked.");
         }
         
         if (newTimeSlot.isBooked()) {
-            throw new IllegalStateException("Željeni novi termin je već zauzet. Molimo izaberite drugi.");
+            throw new IllegalStateException("Desired new time slot is already booked. Please choose another.");
         }
         
         if (newTimeSlot.getSlotTime().isBefore(LocalDateTime.now())) {
-            throw new IllegalStateException("Ne možete promeniti termin na onaj koji je već prošao.");
+            throw new IllegalStateException("Cannot change the time slot to one that has already passed.");
         }
 
         oldTimeSlot.setBooked(false);

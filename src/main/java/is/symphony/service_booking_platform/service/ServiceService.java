@@ -1,5 +1,9 @@
 package is.symphony.service_booking_platform.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import is.symphony.service_booking_platform.dto.ServiceDto;
 import is.symphony.service_booking_platform.model.Role;
 import is.symphony.service_booking_platform.model.Service;
 import is.symphony.service_booking_platform.model.User;
@@ -16,13 +20,34 @@ public class ServiceService {
 
     public Service createService(Service service, Long tenantId) {
         User tenant = userRepository.findById(tenantId)
-                .orElseThrow(() -> new IllegalStateException("Tenant sa ID-jem " + tenantId + " ne postoji."));
-        
+                .orElseThrow(() -> new IllegalStateException("Tenant " + tenantId + " not found."));
+
         if (tenant.getRole() != Role.ROLE_TENANT) {
-            throw new IllegalStateException("Korisnik mora imati rolu TENANT da bi kreirao uslugu.");
+            throw new IllegalStateException("User must have TENANT role to create a service.");
         }
         
         service.setProviderTenant(tenant);
         return serviceRepository.save(service);
+    }
+
+    public List<ServiceDto> findAllServices() {
+        return serviceRepository.findAll()
+                .stream()
+                .map(this::mapToServiceDto)
+                .collect(Collectors.toList());
+    }
+
+     private ServiceDto mapToServiceDto(Service service) {
+        ServiceDto dto = new ServiceDto();
+        dto.setId(service.getId());
+        dto.setName(service.getName());
+        dto.setCategory(service.getCategory());
+        dto.setDescription(service.getDescription());
+        dto.setPrice(service.getPrice());
+        dto.setDurationInMinutes(service.getDurationInMinutes());
+        if (service.getProviderTenant() != null) {
+            dto.setTenantName(service.getProviderTenant().getFirstName() + " " + service.getProviderTenant().getLastName());
+        }
+        return dto;
     }
 }

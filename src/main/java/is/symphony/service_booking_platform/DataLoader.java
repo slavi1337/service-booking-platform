@@ -17,7 +17,7 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        System.out.println("Popunjavanje termina...");
+        System.out.println("Filling up time slots...");
         populateMissingTimeSlots();
     }
 
@@ -39,9 +39,9 @@ public class DataLoader implements CommandLineRunner {
         }
         
         if (slotsCreated > 0) {
-            System.out.println("Uspjesno kreirano" + slotsCreated + " novih slobodnih termina.");
+            System.out.println("Successfully created " + slotsCreated + " new available time slots.");
         } else {
-            System.out.println("Nema potrebe za kreiranjem novih termina.");
+            System.out.println("No need to create new time slots.");
         }
     }
 }

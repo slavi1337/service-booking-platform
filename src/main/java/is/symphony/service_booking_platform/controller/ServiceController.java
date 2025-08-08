@@ -1,8 +1,12 @@
 package is.symphony.service_booking_platform.controller;
 
+import is.symphony.service_booking_platform.dto.ServiceDto;
 import is.symphony.service_booking_platform.model.Service;
 import is.symphony.service_booking_platform.service.ServiceService;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,5 +26,11 @@ public class ServiceController {
         } catch (IllegalStateException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ServiceDto>> getAllServices() {
+        List<ServiceDto> services = serviceService.findAllServices();
+        return ResponseEntity.ok(services);
     }
 }
