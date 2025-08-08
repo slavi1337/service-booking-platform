@@ -24,6 +24,10 @@ public class User implements UserDetails{
 
     private String firstName;
     private String lastName;
+
+    private String businessName; 
+    @Column(columnDefinition = "TEXT")
+    private String businessDescription;
     
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

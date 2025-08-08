@@ -23,6 +23,7 @@ const RegisterPage = () => {
   const {
     handleSubmit,
     control,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(registerSchema),
@@ -31,9 +32,13 @@ const RegisterPage = () => {
       lastName: '',
       email: '',
       password: '',
+      businessName: '',
+      businessDescription: '',
       role: 'ROLE_USER',
     },
   })
+  const selectedRole = watch('role')
+
   const [serverError, setServerError] = useState(null)
   const navigate = useNavigate()
 
@@ -43,18 +48,7 @@ const RegisterPage = () => {
       await registerUser(data)
       navigate('/login')
     } catch (err) {
-      let errorMessage = 'An error occurred while registering. Please try again later.'
-      if (err.response) {
-        if (
-          err.response.status === 409 ||
-          err.response.data?.message?.includes('Duplicate entry')
-        ) {
-          errorMessage = 'Email address is already in use.'
-        } else {
-          errorMessage = err.response.data?.message || errorMessage
-        }
-      }
-      setServerError(errorMessage)
+      setServerError(err.response?.data?.message || 'An error occurred during registration.')
     }
   }
 
@@ -72,77 +66,6 @@ const RegisterPage = () => {
         )}
 
         <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ mt: 1 }} noValidate>
-          <Box sx={{ display: 'flex', gap: 2 }}>
-            <Controller
-              name="firstName"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  margin="normal"
-                  fullWidth
-                  id="firstName"
-                  label="First Name"
-                  autoFocus
-                  error={!!errors.firstName}
-                  helperText={errors.firstName ? errors.firstName.message : ''}
-                />
-              )}
-            />
-            <Controller
-              name="lastName"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  margin="normal"
-                  fullWidth
-                  id="lastName"
-                  label="Last Name"
-                  error={!!errors.lastName}
-                  helperText={errors.lastName ? errors.lastName.message : ''}
-                />
-              )}
-            />
-          </Box>
-
-          <Controller
-            name="email"
-            control={control}
-            render={({ field }) => (
-              <TextField
-                {...field}
-                margin="normal"
-                required
-                fullWidth
-                id="email"
-                label="Email Address"
-                autoComplete="email"
-                error={!!errors.email}
-                helperText={errors.email ? errors.email.message : ''}
-              />
-            )}
-          />
-
-          <Controller
-            name="password"
-            control={control}
-            render={({ field }) => (
-              <TextField
-                {...field}
-                margin="normal"
-                required
-                fullWidth
-                name="password"
-                label="Password"
-                type="password"
-                id="password"
-                error={!!errors.password}
-                helperText={errors.password ? errors.password.message : ''}
-              />
-            )}
-          />
-
           <FormControl component="fieldset" error={!!errors.role} sx={{ mt: 2 }}>
             <FormLabel component="legend">I am a...</FormLabel>
             <Controller
@@ -161,6 +84,121 @@ const RegisterPage = () => {
             />
             <FormHelperText>{errors.role ? errors.role.message : ''}</FormHelperText>
           </FormControl>
+
+          {selectedRole === 'ROLE_USER' && (
+            <>
+              <Controller
+                name="firstName"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    margin="normal"
+                    required
+                    fullWidth
+                    id="firstName"
+                    label="First Name"
+                    autoFocus
+                    error={!!errors.firstName}
+                    helperText={errors.firstName ? errors.firstName.message : ''}
+                  />
+                )}
+              />
+              <Controller
+                name="lastName"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    margin="normal"
+                    required
+                    fullWidth
+                    id="lastName"
+                    label="Last Name"
+                    error={!!errors.lastName}
+                    helperText={errors.lastName ? errors.lastName.message : ''}
+                  />
+                )}
+              />
+            </>
+          )}
+
+          {selectedRole === 'ROLE_TENANT' && (
+            <>
+              <Controller
+                name="businessName"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    margin="normal"
+                    required
+                    fullWidth
+                    id="businessName"
+                    label="Business Name"
+                    autoFocus
+                    error={!!errors.businessName}
+                    helperText={errors.businessName ? errors.businessName.message : ''}
+                  />
+                )}
+              />
+              <Controller
+                name="businessDescription"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    margin="normal"
+                    fullWidth
+                    multiline
+                    rows={3}
+                    id="businessDescription"
+                    label="Business Description (Optional)"
+                    error={!!errors.businessDescription}
+                    helperText={
+                      errors.businessDescription ? errors.businessDescription.message : ''
+                    }
+                  />
+                )}
+              />
+            </>
+          )}
+
+          <Controller
+            name="email"
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                margin="normal"
+                required
+                fullWidth
+                id="email"
+                label="Email Address"
+                autoComplete="email"
+                error={!!errors.email}
+                helperText={errors.email ? errors.email.message : ''}
+              />
+            )}
+          />
+          <Controller
+            name="password"
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                margin="normal"
+                required
+                fullWidth
+                name="password"
+                label="Password"
+                type="password"
+                id="password"
+                error={!!errors.password}
+                helperText={errors.password ? errors.password.message : ''}
+              />
+            )}
+          />
 
           <Button
             type="submit"
