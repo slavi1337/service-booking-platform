@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Container, Typography, TextField, Button, Box, Alert } from '@mui/material'
+import { jwtDecode } from 'jwt-decode'
 import { Controller, useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
 
@@ -28,9 +29,12 @@ const LoginPage = () => {
     try {
       const response = await loginUser(data)
 
-      login(response.data)
+      const token = response.data.token
 
-      if (response.data.role === 'ROLE_TENANT') {
+      login(token)
+
+      const decodedToken = jwtDecode(token)
+      if (decodedToken.role === 'ROLE_TENANT') {
         navigate('/tenant-dashboard')
       } else {
         navigate('/dashboard')

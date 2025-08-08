@@ -1,43 +1,36 @@
 import React, { createContext, useState, useContext, useEffect } from 'react'
 
+import { jwtDecode } from 'jwt-decode'
 const AuthContext = createContext(null)
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
-    const storedUser = localStorage.getItem('user')
     try {
-      return storedUser ? JSON.parse(storedUser) : null
+      const token = localStorage.getItem('token')
+      if (token) {
+        const decodedToken = jwtDecode(token)
+        if (decodedToken.exp * 1000 > Date.now()) {
+          return { email: decodedToken.sub, role: decodedToken.role }
+        }
+      }
+      return null
     } catch (error) {
       return null
     }
   })
 
-  const login = (userData) => {
-    setUser(userData)
-    localStorage.setItem('user', JSON.stringify(userData))
+  const login = (token) => {
+    localStorage.setItem('token', token)
+    const decodedToken = jwtDecode(token)
+    setUser({ email: decodedToken.sub, role: decodedToken.role })
   }
 
   const logout = () => {
+    localStorage.removeItem('token')
     setUser(null)
-    localStorage.removeItem('user')
   }
 
-  useEffect(() => {
-    const handleStorageChange = (event) => {
-      if (event.key === 'user') {
-        const storedUser = event.newValue
-        setUser(storedUser ? JSON.parse(storedUser) : null)
-      }
-    }
-
-    window.addEventListener('storage', handleStorageChange)
-
-    return () => {
-      window.removeEventListener('storage', handleStorageChange)
-    }
-  }, [])
-
-  const value = { user, login, logout }
+  const value = { user, login, logout, token: localStorage.getItem('token') }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

@@ -1,5 +1,6 @@
 package is.symphony.service_booking_platform.service;
 
+import is.symphony.service_booking_platform.dto.auth.AuthenticationResponse;
 import is.symphony.service_booking_platform.model.User;
 import is.symphony.service_booking_platform.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,17 +15,22 @@ public class AuthenticationService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
-    public User register(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepository.save(user);
+    public AuthenticationResponse register(User request) {
+        request.setPassword(passwordEncoder.encode(request.getPassword()));
+        userRepository.save(request);
+        String jwtToken = jwtService.generateToken(request);
+        return AuthenticationResponse.builder().token(jwtToken).build();
     }
 
-    public User authenticate(String email, String password) {
+    public AuthenticationResponse authenticate(String email, String password) {
         authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(email, password)
         );
-        return userRepository.findByEmail(email).orElseThrow();
+        User user = userRepository.findByEmail(email).orElseThrow();
+        String jwtToken = jwtService.generateToken(user);
+        return AuthenticationResponse.builder().token(jwtToken).build();
     }
 }
