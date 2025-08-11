@@ -1,25 +1,40 @@
 package is.symphony.service_booking_platform.controller;
 
+import is.symphony.service_booking_platform.dto.BookingDetailsDto;
+import is.symphony.service_booking_platform.dto.TimeSlotDto;
 import is.symphony.service_booking_platform.dto.request.BookingRequest;
 import is.symphony.service_booking_platform.dto.request.UpdateBookingRequest;
-import is.symphony.service_booking_platform.service.BookingService;
+import is.symphony.service_booking_platform.service.interfaces.IBookingService;
+import is.symphony.service_booking_platform.service.interfaces.ITimeSlotService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class BookingController {
 
-    private final BookingService bookingService; 
+    private final IBookingService bookingService; 
+    private final ITimeSlotService timeSlotService;
 
-    @GetMapping("/slots/available")
-    public ResponseEntity<?> getAvailableSlots(@RequestParam String date) {
-        return ResponseEntity.ok(bookingService.findAvailableTimeSlotsByDate(LocalDate.parse(date)));
+    @GetMapping("/services/{serviceId}/available-slots")
+    public ResponseEntity<?> getAvailableSlotsForService(
+            @PathVariable Long serviceId,
+            @RequestParam String date) {
+        
+        try {
+            LocalDate localDate = LocalDate.parse(date);
+            List<TimeSlotDto> availableSlots = timeSlotService.findAvailableTimeSlotsByDate(localDate, serviceId);
+            return ResponseEntity.ok(availableSlots);
+        } catch (DateTimeParseException e) {
+            return ResponseEntity.badRequest().body("Invalid date format. Please use YYYY-MM-DD.");
+        }
     }
     
     @PostMapping("/slots/{id}/book")
@@ -38,8 +53,15 @@ public class BookingController {
 
     @GetMapping("/bookings")
     public ResponseEntity<?> getBookedAppointments(@RequestParam String date) {
-        return ResponseEntity.ok(bookingService.findBookedAppointmentsByDate(LocalDate.parse(date)));
+        try {
+            LocalDate localDate = LocalDate.parse(date);
+            List<BookingDetailsDto> bookings = bookingService.findBookedAppointmentsByDate(localDate);
+            return ResponseEntity.ok(bookings);
+        } catch (DateTimeParseException e) {
+            return ResponseEntity.badRequest().body("Invalid date format. Please use YYYY-MM-DD.");
+        }
     }
+    
     @DeleteMapping("/bookings/{id}")
     public ResponseEntity<Void> cancelBooking(@PathVariable("id") Long bookingId) {
         try {

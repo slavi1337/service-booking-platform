@@ -30,6 +30,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/services/*").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/slots/available", "/api/services").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/services").hasRole("TENANT")
                         .requestMatchers(HttpMethod.GET, "/api/services/my-services").hasRole("TENANT")

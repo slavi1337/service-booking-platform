@@ -19,34 +19,14 @@ apiClient.interceptors.request.use(
   },
 )
 
-export const registerUser = (userData) => {
-  return apiClient.post('/auth/register', userData)
-}
+export const registerUser = (userData) => apiClient.post('/auth/register', userData);
+export const loginUser = (credentials) => apiClient.post('/auth/login', credentials);
+export const createService = (serviceData, tenantId) => apiClient.post(`/services?tenantId=${tenantId}`, serviceData);
 
-export const loginUser = (credentials) => {
-  return apiClient.post('/auth/login', credentials)
-}
+export const getAllTenants = () => apiClient.get('/users/tenants');
+export const getServicesByTenant = (tenantId) => apiClient.get(`/services/tenant/${tenantId}`);
+export const getServiceById = (id) => apiClient.get(`/services/${id}`);
+export const getAvailableSlotsForService = (serviceId, date) => apiClient.get(`/services/${serviceId}/available-slots?date=${date}`);
+export const bookSlot = (slotId, bookingData) => apiClient.post(`/slots/${slotId}/book`, bookingData);
 
-export const getAllServices = () => {
-  return apiClient.get('/services')
-}
-
-export const getAvailableSlots = (date) => {
-  return apiClient.get(`/slots/available?date=${date}`)
-}
-
-export const bookSlot = (slotId, bookingData) => {
-  return apiClient.post(`/slots/${slotId}/book`, bookingData)
-}
-
-export const createService = (serviceData, tenantId) => {
-  return apiClient.post(`/services?tenantId=${tenantId}`, serviceData)
-}
-
-export const getMyServices = () => {
-  return apiClient.get('/services/my-services')
-}
-
-export const getServiceById = (id) => {
-  return apiClient.get(`/services/${id}`)
-}
+export const getMyServices = () => apiClient.get('/services/my-services');

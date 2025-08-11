@@ -7,5 +7,6 @@ public record ServiceDto(
     String description,
     Double price,
     Integer durationInMinutes,
-    String tenantName
+    String tenantName,
+    Long tenantId 
 ) {}

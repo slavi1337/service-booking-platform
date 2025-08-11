@@ -18,7 +18,7 @@ public class DataLoader implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         System.out.println("Filling up time slots...");
-        populateMissingTimeSlots();
+        //populateMissingTimeSlots();
     }
 
     private void populateMissingTimeSlots() {
@@ -30,11 +30,11 @@ public class DataLoader implements CommandLineRunner {
             for (int hour = 8; hour <= 15; hour++) {
                 LocalDateTime slotTime = currentDay.atTime(hour, 0);
                 
-                if (!timeSlotRepository.existsBySlotTime(slotTime)) {
+                /*if (!timeSlotRepository.existsBySlotTime(slotTime)) {
                     TimeSlot newSlot = new TimeSlot(slotTime);
                     timeSlotRepository.save(newSlot);
                     slotsCreated++;
-                }
+                }*/
             }
         }
         

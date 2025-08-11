@@ -7,20 +7,28 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table(name = "time_slots")
-@NoArgsConstructor 
+@Table(
+    name = "time_slots",
+    uniqueConstraints = @UniqueConstraint(columnNames = {"slot_time", "service_id"})
+)
+@NoArgsConstructor
 public class TimeSlot {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private LocalDateTime slotTime;
 
     @Column(nullable = false)
     private boolean isBooked = false;
 
-    public TimeSlot(LocalDateTime slotTime) {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "service_id", nullable = false)
+    private Service service;
+
+    public TimeSlot(LocalDateTime slotTime, Service service) {
         this.slotTime = slotTime;
+        this.service = service;
     }
 }

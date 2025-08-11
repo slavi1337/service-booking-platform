@@ -1,18 +1,4 @@
-package is.symphony.service_booking_platform.service;
-
-import is.symphony.service_booking_platform.dto.BookingDetailsDto;
-import is.symphony.service_booking_platform.dto.TimeSlotDto;
-import is.symphony.service_booking_platform.model.Booking;
-import is.symphony.service_booking_platform.model.Service;
-import is.symphony.service_booking_platform.model.TimeSlot;
-import is.symphony.service_booking_platform.model.User;
-import is.symphony.service_booking_platform.repository.BookingRepository;
-import is.symphony.service_booking_platform.repository.ServiceRepository;
-import is.symphony.service_booking_platform.repository.TimeSlotRepository;
-import is.symphony.service_booking_platform.repository.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
-import org.springframework.transaction.annotation.Transactional;
+package is.symphony.service_booking_platform.service.impl;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -20,21 +6,30 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.transaction.annotation.Transactional;
+
+import is.symphony.service_booking_platform.model.Service;
+import is.symphony.service_booking_platform.dto.BookingDetailsDto;
+import is.symphony.service_booking_platform.model.Booking;
+import is.symphony.service_booking_platform.model.TimeSlot;
+import is.symphony.service_booking_platform.model.User;
+import is.symphony.service_booking_platform.repository.BookingRepository;
+import is.symphony.service_booking_platform.repository.ServiceRepository;
+import is.symphony.service_booking_platform.repository.TimeSlotRepository;
+import is.symphony.service_booking_platform.repository.UserRepository;
+import is.symphony.service_booking_platform.service.interfaces.IBookingService;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
+
+
 @org.springframework.stereotype.Service
 @RequiredArgsConstructor
-public class BookingService {
-
-    private final TimeSlotRepository timeSlotRepository;
+public class BookingServiceImpl implements IBookingService {
+    
     private final BookingRepository bookingRepository;
+    private final TimeSlotRepository timeSlotRepository;
     private final UserRepository userRepository;
     private final ServiceRepository serviceRepository;
-
-    public List<TimeSlotDto> findAvailableTimeSlotsByDate(LocalDate date) {
-        LocalDateTime startOfDay = date.atStartOfDay();
-        LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
-        List<TimeSlot> timeSlots = timeSlotRepository.findBySlotTimeBetweenAndIsBookedFalse(startOfDay, endOfDay);
-        return timeSlots.stream().map(this::mapToTimeSlotDto).collect(Collectors.toList());
-    }
 
     public List<BookingDetailsDto> findBookedAppointmentsByDate(LocalDate date) {
         LocalDateTime startOfDay = date.atStartOfDay();
@@ -119,20 +114,12 @@ public class BookingService {
         bookingRepository.save(bookingToUpdate);
     }
 
-    private TimeSlotDto mapToTimeSlotDto(TimeSlot timeSlot) {
-        return new TimeSlotDto(
-        timeSlot.getId(), 
-        timeSlot.getSlotTime(), 
-        timeSlot.isBooked()
-    );
-    }
-
     private BookingDetailsDto mapToBookingDetailsDto(Booking booking) {
         return new BookingDetailsDto(
         booking.getId(),
         booking.getClient() != null ? booking.getClient().getEmail() : null,
         booking.getService() != null ? booking.getService().getName() : null,
         booking.getTimeSlot() != null ? booking.getTimeSlot().getSlotTime() : null
-    );
+        );
     }
 }

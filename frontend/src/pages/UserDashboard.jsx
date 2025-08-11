@@ -1,101 +1,55 @@
-import React, { useState, useEffect } from 'react'
-
-import {
-  Container,
-  Typography,
-  Card,
-  CardContent,
-  Grid,
-  CircularProgress,
-  Alert,
-} from '@mui/material'
-
-const fakeApiCall = () => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        data: [
-          {
-            id: 1,
-            name: 'AA',
-            category: 'b',
-            description: 'ccc c',
-            price: 20,
-            durationInMinutes: 30,
-            tenantName: 'aa bb',
-          },
-          {
-            id: 2,
-            name: 'BB',
-            category: 'a',
-            description: 'ccc c',
-            price: 20,
-            durationInMinutes: 30,
-            tenantName: 'aa bb',
-          },
-        ],
-      })
-    }, 1000)
-  })
-}
+import React, { useState, useEffect } from 'react';
+import { Container, Typography, Card, CardContent, Grid, CircularProgress, Alert, CardActionArea } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
+import { getAllTenants } from '../api';
 
 const UserDashboard = () => {
-  const [services, setServices] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+    const [tenants, setTenants] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchServices = async () => {
-      try {
-        const response = await fakeApiCall()
-        setServices(response.data)
-      } catch (err) {
-        setError('Error fetching services')
-        console.error(err)
-      } finally {
-        setLoading(false)
-      }
-    }
+    useEffect(() => {
+        const fetchTenants = async () => {
+            try {
+                const response = await getAllTenants();
+                setTenants(response.data);
+            } catch (err) {
+                setError("Failed to fetch service providers.");
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchTenants();
+    }, []);
 
-    fetchServices()
-  }, [])
+    if (loading) return <CircularProgress sx={{ display: 'block', margin: 'auto', mt: 4 }} />;
+    if (error) return <Alert severity="error">{error}</Alert>;
 
-  if (loading) {
-    return <CircularProgress />
-  }
+    return (
+        <Container>
+            <Typography variant="h4" gutterBottom sx={{ my: 4 }}>
+                Service Providers
+            </Typography>
+            <Grid container spacing={3}>
+                {tenants.map((tenant) => (
+                    <Grid item key={tenant.id} xs={12} sm={6} md={4}>
+                        <Card>
+                            <CardActionArea component={RouterLink} to={`/tenants/${tenant.id}/services`}>
+                                <CardContent>
+                                    <Typography variant="h5" component="div">
+                                        {tenant.businessName}
+                                    </Typography>
+                                    <Typography variant="body2" color="text.secondary">
+                                        {tenant.businessDescription}
+                                    </Typography>
+                                </CardContent>
+                            </CardActionArea>
+                        </Card>
+                    </Grid>
+                ))}
+            </Grid>
+        </Container>
+    );
+};
 
-  if (error) {
-    return <Alert severity="error">{error}</Alert>
-  }
-
-  return (
-    <Container>
-      <Typography gutterBottom variant="h4">
-        Available Services
-      </Typography>
-      <Grid container spacing={3}>
-        {services.map((service) => (
-          <Grid item key={service.id} md={4} sm={6} xs={12}>
-            <Card>
-              <CardContent>
-                <Typography component="div" variant="h5">
-                  {service.name}
-                </Typography>
-                <Typography color="text.secondary" sx={{ mb: 1.5 }}>
-                  {service.category} - {service.tenantName}
-                </Typography>
-                <Typography variant="body2">{service.description}</Typography>
-                <Typography sx={{ mt: 2 }} variant="h6">
-                  Price: {service.price} €
-                </Typography>
-                <Typography variant="body1">Duration: {service.durationInMinutes} min</Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-    </Container>
-  )
-}
-
-export default UserDashboard
+export default UserDashboard;

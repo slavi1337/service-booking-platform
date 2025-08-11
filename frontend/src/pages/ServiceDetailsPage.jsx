@@ -13,7 +13,7 @@ import {
 } from '@mui/material'
 import { useParams } from 'react-router-dom'
 
-import { getServiceById, getAvailableSlots } from '../api'
+import { getServiceById, getAvailableSlotsForService } from '../api'
 
 const ServiceDetailsPage = () => {
   const { serviceId } = useParams()
@@ -39,7 +39,7 @@ const ServiceDetailsPage = () => {
     const fetchSlots = async () => {
       setLoading(true)
       try {
-        const response = await getAvailableSlots(selectedDate)
+        const response = await getAvailableSlotsForService(serviceId, selectedDate);
         setSlots(response.data)
       } catch (err) {
         setError('Failed to fetch available slots.')
@@ -48,7 +48,7 @@ const ServiceDetailsPage = () => {
       }
     }
     fetchSlots()
-  }, [selectedDate])
+  }, [selectedDate,serviceId])
 
   if (!service) {
     return <CircularProgress />

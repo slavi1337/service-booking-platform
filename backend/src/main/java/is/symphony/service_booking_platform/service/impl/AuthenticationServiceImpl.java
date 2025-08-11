@@ -1,4 +1,4 @@
-package is.symphony.service_booking_platform.service;
+package is.symphony.service_booking_platform.service.impl;
 
 import is.symphony.service_booking_platform.dto.LoginResponseDto;
 import is.symphony.service_booking_platform.dto.auth.AuthenticationResponse;
@@ -8,11 +8,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import is.symphony.service_booking_platform.service.interfaces.IAuthenticationService;
 import org.springframework.stereotype.Service;
+import is.symphony.service_booking_platform.service.JwtService;
 
 @Service
 @RequiredArgsConstructor
-public class AuthenticationService {
+public class AuthenticationServiceImpl implements IAuthenticationService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
