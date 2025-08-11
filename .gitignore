@@ -56,3 +56,5 @@ Thumbs.db
 /frontend/dist-ssr/
 /frontend/coverage/
 /frontend/.npm/
+frontend/.cache/
+/frontend/.vscode/
