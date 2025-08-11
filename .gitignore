@@ -49,6 +49,7 @@ Thumbs.db
 /backend/target/
 /backend/.mvn/
 /backend/HELP.md
+/backend/.vscode/
 
 
 /frontend/node_modules/

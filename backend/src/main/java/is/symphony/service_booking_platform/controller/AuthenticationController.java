@@ -1,10 +1,10 @@
 package is.symphony.service_booking_platform.controller;
 
+import is.symphony.service_booking_platform.dto.request.LoginRequest;
 import is.symphony.service_booking_platform.dto.LoginResponseDto;
 import is.symphony.service_booking_platform.dto.auth.AuthenticationResponse;
 import is.symphony.service_booking_platform.model.User;
 import is.symphony.service_booking_platform.service.AuthenticationService;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,10 +25,4 @@ public class AuthenticationController {
 public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequest request) {
     return ResponseEntity.ok(authService.authenticate(request.getEmail(), request.getPassword()));
 }
-    
-    @Data
-    static class LoginRequest {
-        private String email;
-        private String password;
-    }
 }
