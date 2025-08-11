@@ -23,7 +23,7 @@ public class AuthenticationService {
         request.setPassword(passwordEncoder.encode(request.getPassword()));
         userRepository.save(request);
         String jwtToken = jwtService.generateToken(request);
-        return AuthenticationResponse.builder().token(jwtToken).build();
+        return new AuthenticationResponse(jwtToken);
     }
 
     public LoginResponseDto authenticate(String email, String password) {
@@ -34,6 +34,6 @@ public class AuthenticationService {
     String jwtToken = jwtService.generateToken(user);
     
     user.setPassword(null);
-    return LoginResponseDto.builder().token(jwtToken).user(user).build();
+    return new LoginResponseDto(jwtToken, user);
 }
 }

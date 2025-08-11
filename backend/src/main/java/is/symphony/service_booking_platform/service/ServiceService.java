@@ -39,18 +39,16 @@ public class ServiceService {
     }
 
      private ServiceDto mapToServiceDto(Service service) {
-        ServiceDto dto = new ServiceDto();
-        dto.setId(service.getId());
-        dto.setName(service.getName());
-        dto.setCategory(service.getCategory());
-        dto.setDescription(service.getDescription());
-        dto.setPrice(service.getPrice());
-        dto.setDurationInMinutes(service.getDurationInMinutes());
-        if (service.getProviderTenant() != null) {
-            dto.setTenantName(service.getProviderTenant().getFirstName() + " " + service.getProviderTenant().getLastName());
-        }
-        return dto;
-    }
+    return new ServiceDto(
+        service.getId(),
+        service.getName(),
+        service.getCategory(),
+        service.getDescription(),
+        service.getPrice(),
+        service.getDurationInMinutes(),
+        service.getProviderTenant() != null ? service.getProviderTenant().getFirstName() + " " + service.getProviderTenant().getLastName() : null
+    );
+}
 
     public List<ServiceDto> findServicesByTenant(Long tenantId) {
         if (!userRepository.existsById(tenantId)) {

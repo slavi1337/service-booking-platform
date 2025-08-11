@@ -120,25 +120,19 @@ public class BookingService {
     }
 
     private TimeSlotDto mapToTimeSlotDto(TimeSlot timeSlot) {
-        TimeSlotDto dto = new TimeSlotDto();
-        dto.setId(timeSlot.getId());
-        dto.setSlotTime(timeSlot.getSlotTime());
-        return dto;
+        return new TimeSlotDto(
+        timeSlot.getId(), 
+        timeSlot.getSlotTime(), 
+        timeSlot.isBooked()
+    );
     }
 
     private BookingDetailsDto mapToBookingDetailsDto(Booking booking) {
-        BookingDetailsDto dto = new BookingDetailsDto();
-        dto.setBookingId(booking.getId());
-        
-        if (booking.getClient() != null) {
-            dto.setClientEmail(booking.getClient().getEmail());
-        }
-        if (booking.getService() != null) {
-            dto.setServiceName(booking.getService().getName());
-        }
-        if (booking.getTimeSlot() != null) {
-            dto.setSlotTime(booking.getTimeSlot().getSlotTime());
-        }
-        return dto;
+        return new BookingDetailsDto(
+        booking.getId(),
+        booking.getClient() != null ? booking.getClient().getEmail() : null,
+        booking.getService() != null ? booking.getService().getName() : null,
+        booking.getTimeSlot() != null ? booking.getTimeSlot().getSlotTime() : null
+    );
     }
 }

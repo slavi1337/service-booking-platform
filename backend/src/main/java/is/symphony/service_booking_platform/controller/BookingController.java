@@ -27,7 +27,7 @@ public class BookingController {
             @PathVariable("id") Long timeSlotId, 
             @RequestBody BookingRequest request) {
         try {
-            bookingService.bookTimeSlot(timeSlotId, request.getClientId(), request.getServiceId());
+            bookingService.bookTimeSlot(timeSlotId, request.clientId(), request.serviceId());
             return ResponseEntity.status(HttpStatus.CREATED).body("Successfully booked the time slot.");
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
@@ -55,7 +55,7 @@ public class BookingController {
             @PathVariable("id") Long bookingId,
             @RequestBody UpdateBookingRequest request) {
         try {
-            bookingService.updateBookingTimeSlot(bookingId, request.getNewTimeSlotId());
+            bookingService.updateBookingTimeSlot(bookingId, request.newTimeSlotId());
             return ResponseEntity.ok("Successfully updated the booking.");
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
