@@ -9,6 +9,7 @@ import is.symphony.service_booking_platform.model.Service;
 import is.symphony.service_booking_platform.model.User;
 import is.symphony.service_booking_platform.repository.ServiceRepository;
 import is.symphony.service_booking_platform.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @org.springframework.stereotype.Service
@@ -50,4 +51,21 @@ public class ServiceService {
         }
         return dto;
     }
+
+    public List<ServiceDto> findServicesByTenant(Long tenantId) {
+        if (!userRepository.existsById(tenantId)) {
+            throw new EntityNotFoundException("Tenant with ID " + tenantId + " not found.");
+        }
+        
+        return serviceRepository.findByProviderTenantId(tenantId)
+                .stream()
+                .map(this::mapToServiceDto)
+                .collect(Collectors.toList());
+    }
+
+    public ServiceDto findById(Long id) {
+    Service service = serviceRepository.findById(id)
+        .orElseThrow(() -> new EntityNotFoundException("Service with ID " + id + " not found."));
+    return mapToServiceDto(service);
+}
 }

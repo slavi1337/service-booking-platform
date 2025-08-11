@@ -27,14 +27,12 @@ const LoginPage = () => {
   const onSubmit = async (data) => {
     setServerError(null)
     try {
-      const response = await loginUser(data)
+      const loginResponse = await loginUser(data)
 
-      const token = response.data.token
-
-      login(token)
-
-      const decodedToken = jwtDecode(token)
-      if (decodedToken.role === 'ROLE_TENANT') {
+      const user = loginResponse.data.user
+      const token = loginResponse.data.token
+      login(user, token)
+      if (user.role === 'ROLE_TENANT') {
         navigate('/tenant-dashboard')
       } else {
         navigate('/dashboard')

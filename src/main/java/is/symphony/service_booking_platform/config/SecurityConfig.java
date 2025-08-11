@@ -32,6 +32,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/slots/available", "/api/services").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/services").hasRole("TENANT")
+                        .requestMatchers(HttpMethod.GET, "/api/services/my-services").hasRole("TENANT")
                         .requestMatchers(HttpMethod.POST, "/api/slots/*/book").hasRole("USER")
                         .anyRequest().authenticated()
                 )

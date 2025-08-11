@@ -10,7 +10,8 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.security.core.Authentication;
+import is.symphony.service_booking_platform.model.User;
 @RestController
 @RequestMapping("/api/services")
 @RequiredArgsConstructor
@@ -33,4 +34,18 @@ public class ServiceController {
         List<ServiceDto> services = serviceService.findAllServices();
         return ResponseEntity.ok(services);
     }
+
+    @GetMapping("/my-services")
+    public ResponseEntity<List<ServiceDto>> getMyServices(Authentication authentication) {
+        User loggedInUser = (User) authentication.getPrincipal();
+
+        List<ServiceDto> services = serviceService.findServicesByTenant(loggedInUser.getId());
+        return ResponseEntity.ok(services);
+    }
+
+    @GetMapping("/{id}")
+public ResponseEntity<ServiceDto> getServiceById(@PathVariable Long id) {
+    ServiceDto service = serviceService.findById(id); 
+    return ResponseEntity.ok(service);
+}
 }

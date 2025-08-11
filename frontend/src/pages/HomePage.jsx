@@ -9,9 +9,21 @@ const HomePage = () => {
   const navigate = useNavigate()
   const { user, logout } = useAuth()
 
+  let dashboardPath = '/dashboard'
+  if (user && user.role === 'ROLE_TENANT') {
+    dashboardPath = '/tenant-dashboard'
+  }
+
   return (
     <Container maxWidth="sm">
-      <Box sx={{ marginTop: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <Box
+        sx={{
+          marginTop: 8,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}
+      >
         <Typography component="h1" gutterBottom variant="h4">
           Welcome to Service Booking Platform
         </Typography>
@@ -19,20 +31,29 @@ const HomePage = () => {
         {user ? (
           <Box sx={{ mt: 4 }} textAlign="center">
             <Typography variant="h6">
-              You are logged in as {user.email} ({user.role.replace('ROLE_', '')})
+              Logged in as: {user.businessName || user.firstName || user.email}
             </Typography>
-            <Button onClick={logout} sx={{ mt: 2 }} variant="outlined">
-              Log out
-            </Button>
-            <br />
-            <Link style={{ marginTop: '16px', display: 'inline-block' }} to="/dashboard">
-              <Button variant="contained">Go to your dashboard</Button>
+            <Typography color="text.secondary" variant="body1">
+              (Role: {user.role.replace('ROLE_', '')})
+            </Typography>
+
+            <Link
+              style={{ marginTop: '16px', display: 'inline-block', textDecoration: 'none' }}
+              to={dashboardPath}
+            >
+              <Button variant="contained">Go to Dashboard</Button>
             </Link>
+
+            <br />
+
+            <Button onClick={logout} sx={{ mt: 2 }} variant="outlined">
+              Logout
+            </Button>
           </Box>
         ) : (
           <Box sx={{ mt: 4 }}>
             <Button onClick={() => navigate('/login')} size="large" variant="contained">
-              Log in
+              Login
             </Button>
           </Box>
         )}

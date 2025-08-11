@@ -38,3 +38,15 @@ export const getAvailableSlots = (date) => {
 export const bookSlot = (slotId, bookingData) => {
   return apiClient.post(`/slots/${slotId}/book`, bookingData)
 }
+
+export const createService = (serviceData, tenantId) => {
+  return apiClient.post(`/services?tenantId=${tenantId}`, serviceData)
+}
+
+export const getMyServices = () => {
+  return apiClient.get('/services/my-services')
+}
+
+export const getServiceById = (id) => {
+  return apiClient.get(`/services/${id}`)
+}

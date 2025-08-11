@@ -1,5 +1,6 @@
 package is.symphony.service_booking_platform.controller;
 
+import is.symphony.service_booking_platform.dto.LoginResponseDto;
 import is.symphony.service_booking_platform.dto.auth.AuthenticationResponse;
 import is.symphony.service_booking_platform.model.User;
 import is.symphony.service_booking_platform.service.AuthenticationService;
@@ -21,9 +22,9 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthenticationResponse> login(@RequestBody LoginRequest request) {
-        return ResponseEntity.ok(authService.authenticate(request.getEmail(), request.getPassword()));
-    }
+public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequest request) {
+    return ResponseEntity.ok(authService.authenticate(request.getEmail(), request.getPassword()));
+}
     
     @Data
     static class LoginRequest {

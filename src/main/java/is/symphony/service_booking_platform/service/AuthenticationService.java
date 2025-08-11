@@ -1,5 +1,6 @@
 package is.symphony.service_booking_platform.service;
 
+import is.symphony.service_booking_platform.dto.LoginResponseDto;
 import is.symphony.service_booking_platform.dto.auth.AuthenticationResponse;
 import is.symphony.service_booking_platform.model.User;
 import is.symphony.service_booking_platform.repository.UserRepository;
@@ -25,12 +26,14 @@ public class AuthenticationService {
         return AuthenticationResponse.builder().token(jwtToken).build();
     }
 
-    public AuthenticationResponse authenticate(String email, String password) {
-        authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(email, password)
-        );
-        User user = userRepository.findByEmail(email).orElseThrow();
-        String jwtToken = jwtService.generateToken(user);
-        return AuthenticationResponse.builder().token(jwtToken).build();
-    }
+    public LoginResponseDto authenticate(String email, String password) {
+    authenticationManager.authenticate(
+        new UsernamePasswordAuthenticationToken(email, password)
+    );
+    User user = userRepository.findByEmail(email).orElseThrow();
+    String jwtToken = jwtService.generateToken(user);
+    
+    user.setPassword(null);
+    return LoginResponseDto.builder().token(jwtToken).user(user).build();
+}
 }

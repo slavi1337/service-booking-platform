@@ -52,7 +52,7 @@ public class BookingService {
                 .orElseThrow(() -> new EntityNotFoundException("Client " + clientId + " not found."));
 
         Service service = serviceRepository.findById(serviceId)
-                .orElseThrow(() -> new EntityNotFoundException("Usluga sa ID-jem " + serviceId + " ne postoji."));
+                .orElseThrow(() -> new EntityNotFoundException("Service " + serviceId + " not found."));
 
         if (timeSlot.getSlotTime().isBefore(LocalDateTime.now())) {
             throw new IllegalStateException("Cannot book a time slot that has already passed.");
