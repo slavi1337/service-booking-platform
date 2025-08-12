@@ -55,7 +55,7 @@ const ServiceDetailsPage = () => {
         const response = await getServiceById(serviceId)
         setService(response.data)
       } catch (err) {
-        setError('Neuspješno dohvatanje detalja servisa.')
+        setError('Unsuccessful fetching of service details.')
         console.error(err)
       } finally {
         setLoadingService(false)
@@ -72,7 +72,7 @@ const ServiceDetailsPage = () => {
       const response = await getAllSlotStatusesForService(serviceId, selectedDate)
       setSlots(response.data)
     } catch (err) {
-      setError('Neuspješno dohvatanje termina.')
+      setError('Unsuccessful fetching of available slots.')
       console.error(err)
     } finally {
       setLoadingSlots(false)
@@ -89,7 +89,7 @@ const ServiceDetailsPage = () => {
       return
     }
     if (user.role !== 'ROLE_USER') {
-      alert('Samo registrovani korisnici mogu rezervisati termine.')
+      alert('Only registered users can book appointments.')
       return
     }
     setSelectedSlot(slot)
@@ -108,7 +108,7 @@ const ServiceDetailsPage = () => {
       }
       await createBooking(bookingData)
       setSuccessMessage(
-        `Uspješno ste rezervisali termin ${new Date(selectedSlot.startTime).toLocaleString()}`,
+        `Successfully booked appointment on ${new Date(selectedSlot.startTime).toLocaleString()}`,
       )
       handleCloseModal()
       fetchAllSlots()
@@ -116,7 +116,7 @@ const ServiceDetailsPage = () => {
       setBookingError(
         err.response?.data?.message ||
           err.response?.data ||
-          'Došlo je do greške prilikom rezervacije.',
+          'An error occurred while booking the appointment.',
       )
     }
   }
@@ -143,7 +143,7 @@ const ServiceDetailsPage = () => {
     return (
       <Container>
         <Alert severity="warning" sx={{ mt: 4 }}>
-          Servis nije pronađen.
+          Service not found.
         </Alert>
       </Container>
     )
@@ -161,17 +161,17 @@ const ServiceDetailsPage = () => {
         <Typography variant="body1" sx={{ my: 2 }}>
           {service.description}
         </Typography>
-        <Typography variant="h5">Cijena: {service.price.toFixed(2)}€</Typography>
-        <Typography variant="body1">Trajanje: {service.durationInMinutes} minuta</Typography>
+        <Typography variant="h5">Price: {service.price.toFixed(2)}€</Typography>
+        <Typography variant="body1">Duration: {service.durationInMinutes} minutes</Typography>
       </Paper>
 
       <Box>
         <Typography variant="h5" gutterBottom>
-          Dostupni Termini
+          Available Slots
         </Typography>
         <TextField
           id="date"
-          label="Izaberite Datum"
+          label="Select Date"
           type="date"
           value={selectedDate}
           onChange={(e) => setSelectedDate(e.target.value)}
@@ -202,7 +202,7 @@ const ServiceDetailsPage = () => {
                 </Grid>
               ))
             ) : (
-              <Typography sx={{ ml: 1, mt: 2 }}>Nema termina za izabrani datum.</Typography>
+              <Typography sx={{ ml: 1, mt: 2 }}>No slots available for the selected date.</Typography>
             )}
           </Grid>
         )}
@@ -215,12 +215,12 @@ const ServiceDetailsPage = () => {
       >
         <Box sx={modalStyle}>
           <Typography id="booking-confirmation-title" variant="h6" component="h2">
-            Potvrda Rezervacije
+            Booking Confirmation
           </Typography>
           {selectedSlot && (
             <Typography sx={{ mt: 2 }}>
-              Da li ste sigurni da želite da rezervišete uslugu
-              <strong> "{service?.name}"</strong> u terminu
+              Are you sure you want to book the service
+              <strong> "{service?.name}"</strong> at the time
               <strong>
                 {' '}
                 {new Date(selectedSlot.startTime).toLocaleTimeString([], {
@@ -237,9 +237,9 @@ const ServiceDetailsPage = () => {
             </Alert>
           )}
           <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-            <Button onClick={handleCloseModal}>Otkaži</Button>
+            <Button onClick={handleCloseModal}>Cancel</Button>
             <Button variant="contained" onClick={handleConfirmBooking}>
-              Potvrdi
+              Confirm
             </Button>
           </Box>
         </Box>
