@@ -40,9 +40,17 @@ export const createBooking = (bookingData) => {
 export const getMyServices = () => apiClient.get('/services/my-services')
 
 export const getBookingDetails = (bookingId) => {
-    return apiClient.get(`/bookings/${bookingId}/details`);
-};
+  return apiClient.get(`/bookings/${bookingId}/details`)
+}
 
 export const toggleAvailability = (availabilityId, isAvailable) => {
-    return apiClient.patch(`/availabilities/${availabilityId}/toggle?isAvailable=${isAvailable}`);
-};
+  return apiClient.patch(`/availabilities/${availabilityId}/toggle?isAvailable=${isAvailable}`)
+}
+
+export const getMyBookings = () => {
+  return apiClient.get('/bookings/my-bookings')
+}
+
+export const cancelBooking = (bookingId) => {
+  return apiClient.delete(`/bookings/${bookingId}`)
+}

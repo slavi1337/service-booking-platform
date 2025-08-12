@@ -22,6 +22,7 @@ const HomePage = () => {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
+          textAlign: 'center',
         }}
       >
         <Typography component="h1" gutterBottom variant="h4">
@@ -43,6 +44,16 @@ const HomePage = () => {
             >
               <Button variant="contained">Go to Dashboard</Button>
             </Link>
+
+            {user.role === 'ROLE_USER' ? (
+              <Box sx={{ mt: 2 }}>
+                <Link style={{ textDecoration: 'none' }} to="/my-bookings">
+                  <Button color="secondary" variant="contained">
+                    My Reservations
+                  </Button>
+                </Link>
+              </Box>
+            ) : null}
 
             <br />
 

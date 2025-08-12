@@ -3,10 +3,11 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import LoginPage from './pages/Auth/LoginPage'
 import RegisterPage from './pages/Auth/RegisterPage'
 import HomePage from './pages/HomePage'
+import MyBookingsPage from './pages/MyBookingsPage'
 import ServiceDetailsPage from './pages/ServiceDetailsPage'
 import TenantDashboard from './pages/TenantDashboard'
+import TenantServicesPage from './pages/TenantServicesPage'
 import UserDashboard from './pages/UserDashboard'
-import TenantServicesPage from './pages/TenantServicesPage';
 
 const App = () => {
   return (
@@ -21,6 +22,8 @@ const App = () => {
 
         <Route element={<TenantServicesPage />} path="/tenants/:tenantId/services" />
         <Route element={<ServiceDetailsPage />} path="/services/:serviceId" />
+
+        <Route element={<MyBookingsPage />} path="/my-bookings" />
       </Routes>
     </BrowserRouter>
   )
