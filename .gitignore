@@ -50,6 +50,7 @@ Thumbs.db
 /backend/.mvn/
 /backend/HELP.md
 /backend/.vscode/
+/backend/application.properties/
 
 
 /frontend/node_modules/
