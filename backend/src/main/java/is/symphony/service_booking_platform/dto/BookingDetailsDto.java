@@ -4,7 +4,10 @@ import java.time.LocalDateTime;
 
 public record BookingDetailsDto(
     Long bookingId, 
-    String clientEmail, 
-    String serviceName, 
-    LocalDateTime slotTime
+    Long clientId,
+    String clientFirstName,
+    String clientLastName,
+    String clientEmail,
+    String serviceName,
+    LocalDateTime slotDateTime
 ) {}

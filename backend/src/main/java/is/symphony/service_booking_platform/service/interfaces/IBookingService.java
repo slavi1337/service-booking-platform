@@ -10,4 +10,5 @@ public interface IBookingService {
     void cancelBooking(Long bookingId);
     void updateBookingTimeSlot(Long bookingId, Long newAvailabilityId);
     List<BookingDetailsDto> findBookedAppointmentsByDate(LocalDate date);
+    BookingDetailsDto findBookingDetailsById(Long bookingId);
 }

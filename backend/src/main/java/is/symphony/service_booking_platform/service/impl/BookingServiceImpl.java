@@ -1,4 +1,3 @@
-// LOKACIJA: service/impl/BookingServiceImpl.java
 package is.symphony.service_booking_platform.service.impl;
 
 import is.symphony.service_booking_platform.dto.BookingDetailsDto;
@@ -7,19 +6,46 @@ import is.symphony.service_booking_platform.repository.*;
 import is.symphony.service_booking_platform.service.interfaces.IBookingService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
-@Service
+@org.springframework.stereotype.Service
 @RequiredArgsConstructor
 public class BookingServiceImpl implements IBookingService {
     
     private final BookingRepository bookingRepository;
     private final AvailabilityRepository availabilityRepository;
     private final UserRepository userRepository;
+
+    public BookingDetailsDto findBookingDetailsById(Long bookingId) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new EntityNotFoundException("Booking with ID " + bookingId + " not found."));
+        return this.mapToBookingDetailsDto(booking);
+    }
+    
+    public BookingDetailsDto mapToBookingDetailsDto(Booking booking) {
+        User client = booking.getClient();
+        Availability availability = booking.getAvailability();
+        Service service = (availability != null) ? availability.getService() : null;
+        TimeTemplate template = (availability != null) ? availability.getTemplate() : null;
+        LocalDate date = (availability != null) ? availability.getDate() : null;
+        
+        LocalDateTime slotDateTime = (date != null && template != null) ? 
+                                     LocalDateTime.of(date, template.getStartTime()) : null;
+
+        return new BookingDetailsDto(
+            booking.getId(),
+            client != null ? client.getId() : null,
+            client != null ? client.getFirstName() : null,
+            client != null ? client.getLastName() : null,
+            client != null ? client.getEmail() : null,
+            service != null ? service.getName() : null,
+            slotDateTime
+        );
+    }
 
     @Override
     @Transactional
@@ -50,7 +76,10 @@ public class BookingServiceImpl implements IBookingService {
     
     @Override
     public List<BookingDetailsDto> findBookedAppointmentsByDate(LocalDate date) {
-        return List.of(); 
+        List<Booking> bookings = bookingRepository.findBookingsByDate(date);
+        return bookings.stream()
+                .map(this::mapToBookingDetailsDto) 
+                .collect(Collectors.toList());
     }
 
     @Override

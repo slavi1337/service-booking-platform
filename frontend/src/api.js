@@ -38,3 +38,11 @@ export const createBooking = (bookingData) => {
 }
 
 export const getMyServices = () => apiClient.get('/services/my-services')
+
+export const getBookingDetails = (bookingId) => {
+    return apiClient.get(`/bookings/${bookingId}/details`);
+};
+
+export const toggleAvailability = (availabilityId, isAvailable) => {
+    return apiClient.patch(`/availabilities/${availabilityId}/toggle?isAvailable=${isAvailable}`);
+};

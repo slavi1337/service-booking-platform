@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
     
@@ -14,4 +15,5 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
            "JOIN FETCH a.template t " +
            "WHERE a.date = :targetDate")
     List<Booking> findBookingsByDate(@Param("targetDate") LocalDate targetDate);
+    Optional<Booking> findByAvailabilityId(Long availabilityId);
 }

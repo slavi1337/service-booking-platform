@@ -10,15 +10,19 @@ import org.springframework.stereotype.Service;
 import is.symphony.service_booking_platform.dto.AvailabilityDto;
 import is.symphony.service_booking_platform.dto.AvailabilityStatusDto;
 import is.symphony.service_booking_platform.model.Availability;
+import is.symphony.service_booking_platform.model.Booking;
 import is.symphony.service_booking_platform.repository.AvailabilityRepository;
 import is.symphony.service_booking_platform.service.interfaces.IAvailabilityService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import is.symphony.service_booking_platform.repository.BookingRepository;
 
 @Service
 @RequiredArgsConstructor
 public class AvailabilityServiceImpl implements IAvailabilityService {
 
     private final AvailabilityRepository availabilityRepository;
+    private final BookingRepository bookingRepository;
 
     @Override
     public List<AvailabilityDto> findAvailableByServiceAndDate(Long serviceId, LocalDate date) {
@@ -29,18 +33,24 @@ public class AvailabilityServiceImpl implements IAvailabilityService {
     }
     
     @Override
-    public void toggleAvailability(Long availabilityId, boolean isAvailable) {
-        Availability availability = availabilityRepository.findById(availabilityId).orElseThrow(/*...*/);
-        availability.setAvailable(isAvailable);
-        availabilityRepository.save(availability);
+public void toggleAvailability(Long availabilityId, boolean isAvailable) {
+    Availability availability = availabilityRepository.findById(availabilityId)
+            .orElseThrow(() -> new EntityNotFoundException("Availability with ID " + availabilityId + " not found."));
+    
+    if (availability.isBooked()) {
+        throw new IllegalStateException("Cannot change availability of a booked time slot.");
     }
 
-    @Override
+    availability.setAvailable(isAvailable);
+    availabilityRepository.save(availability);
+}
+
+     @Override
     public List<AvailabilityStatusDto> findAllByServiceAndDate(Long serviceId, LocalDate date) {
-        return availabilityRepository.findByServiceIdAndDateAndIsAvailableTrueOrderByTemplateStartTimeAsc(serviceId, date)
-                .stream()
-                .map(this::mapToStatusDto) 
-                .collect(Collectors.toList());
+        return availabilityRepository.findByServiceIdAndDateOrderByTemplateStartTimeAsc(serviceId, date)
+            .stream()
+            .map(this::mapToStatusDto) 
+            .collect(Collectors.toList());
     }
 
     private AvailabilityDto mapToDto(Availability availability) {
@@ -57,10 +67,15 @@ public class AvailabilityServiceImpl implements IAvailabilityService {
             availability.getDate(),
             availability.getTemplate().getStartTime()
         );
+        Booking booking = bookingRepository.findByAvailabilityId(availability.getId()).orElse(null);
+        Long bookingId = (booking != null) ? booking.getId() : null;
+
         return new AvailabilityStatusDto(
             availability.getId(), 
             dateTime, 
-            availability.isBooked()
+            availability.isBooked(),
+            availability.isAvailable(),
+            bookingId
         );
     }
 }

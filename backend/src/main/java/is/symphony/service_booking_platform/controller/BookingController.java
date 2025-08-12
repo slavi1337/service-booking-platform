@@ -66,4 +66,14 @@ public class BookingController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }
     }
+
+    @GetMapping("/{id}/details")
+    public ResponseEntity<BookingDetailsDto> getBookingDetails(@PathVariable("id") Long bookingId) {
+        try {
+            BookingDetailsDto bookingDetails = bookingService.findBookingDetailsById(bookingId);
+            return ResponseEntity.ok(bookingDetails);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }

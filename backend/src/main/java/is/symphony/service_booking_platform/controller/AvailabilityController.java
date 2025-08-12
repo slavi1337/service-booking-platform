@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -54,7 +55,11 @@ public class AvailabilityController {
     public ResponseEntity<Void> toggleAvailability(
             @PathVariable("id") Long availabilityId,
             @RequestParam boolean isAvailable) {
+        try {
         availabilityService.toggleAvailability(availabilityId, isAvailable);
         return ResponseEntity.ok().build();
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
     }
 }

@@ -4,5 +4,7 @@ import java.time.LocalDateTime;
 public record AvailabilityStatusDto(
     Long id,
     LocalDateTime startTime,
-    boolean isBooked 
+    boolean isBooked,
+    boolean isAvailable,
+    Long bookingId
 ) {}

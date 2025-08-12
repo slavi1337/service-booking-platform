@@ -36,9 +36,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/users/tenants").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/services/tenant/{tenantId}").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/availabilities/service/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/bookings/{id}/details").authenticated()
 
                         .requestMatchers(HttpMethod.POST, "/api/services").hasRole("TENANT")
                         .requestMatchers(HttpMethod.GET, "/api/services/my-services").hasRole("TENANT")
+                        .requestMatchers(HttpMethod.PATCH, "/api/availabilities/*/toggle").hasRole("TENANT")
 
                         .requestMatchers(HttpMethod.POST, "/api/bookings").hasRole("USER")
                         
