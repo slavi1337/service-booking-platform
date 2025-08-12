@@ -40,6 +40,7 @@ const ServiceDetailsPage = () => {
       setLoading(true)
       try {
         const response = await getAvailableSlotsForService(serviceId, selectedDate);
+        console.log("Podaci dobijeni sa servera:", response.data);
         setSlots(response.data)
       } catch (err) {
         setError('Failed to fetch available slots.')
@@ -47,8 +48,10 @@ const ServiceDetailsPage = () => {
         setLoading(false)
       }
     }
-    fetchSlots()
-  }, [selectedDate,serviceId])
+    if (serviceId) {
+      fetchSlots()
+    }
+  }, [selectedDate, serviceId])
 
   if (!service) {
     return <CircularProgress />
@@ -96,7 +99,7 @@ const ServiceDetailsPage = () => {
               slots.map((slot) => (
                 <Grid item key={slot.id}>
                   <Button variant="outlined">
-                    {new Date(slot.slotTime).toLocaleTimeString([], {
+                    {new Date(slot.startTime).toLocaleTimeString([], {
                       hour: '2-digit',
                       minute: '2-digit',
                     })}

@@ -20,21 +20,20 @@ const MyServicesList = () => {
   const [error, setError] = useState(null)
 
   useEffect(() => {
-        const fetchMyServices = async () => {
-            setLoading(true);
-            setError(null);
-            try {
-                const response = await getMyServices(); 
-                setServices(response.data);
-            } catch (err) {
-                setError("Failed to fetch your services.");
-                console.error(err);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchMyServices();
-    }, []);
+      const fetchMyServices = async () => {
+          setLoading(true);
+          setError(null);
+          try {
+              const response = await getMyServices(); 
+              setServices(response.data);
+          } catch (err) {
+              setError("Failed to fetch your services.");
+              console.error(err);
+          } finally {
+              setLoading(false);
+          }};
+      fetchMyServices();
+  }, []);
 
   if (loading) return <CircularProgress />
   if (error) return <Alert severity="error">{error}</Alert>

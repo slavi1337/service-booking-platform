@@ -1,125 +1,88 @@
+// LOKACIJA: service/impl/BookingServiceImpl.java
 package is.symphony.service_booking_platform.service.impl;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.springframework.transaction.annotation.Transactional;
-
-import is.symphony.service_booking_platform.model.Service;
 import is.symphony.service_booking_platform.dto.BookingDetailsDto;
-import is.symphony.service_booking_platform.model.Booking;
-import is.symphony.service_booking_platform.model.TimeSlot;
-import is.symphony.service_booking_platform.model.User;
-import is.symphony.service_booking_platform.repository.BookingRepository;
-import is.symphony.service_booking_platform.repository.ServiceRepository;
-import is.symphony.service_booking_platform.repository.TimeSlotRepository;
-import is.symphony.service_booking_platform.repository.UserRepository;
+import is.symphony.service_booking_platform.model.*;
+import is.symphony.service_booking_platform.repository.*;
 import is.symphony.service_booking_platform.service.interfaces.IBookingService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 
-
-@org.springframework.stereotype.Service
+@Service
 @RequiredArgsConstructor
 public class BookingServiceImpl implements IBookingService {
     
     private final BookingRepository bookingRepository;
-    private final TimeSlotRepository timeSlotRepository;
+    private final AvailabilityRepository availabilityRepository;
     private final UserRepository userRepository;
-    private final ServiceRepository serviceRepository;
 
-    public List<BookingDetailsDto> findBookedAppointmentsByDate(LocalDate date) {
-        LocalDateTime startOfDay = date.atStartOfDay();
-        LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
-        List<Booking> bookings = bookingRepository.findBookingsBetween(startOfDay, endOfDay);
-        return bookings.stream().map(this::mapToBookingDetailsDto).collect(Collectors.toList());
-    }
-
+    @Override
     @Transactional
-    public Booking bookTimeSlot(Long timeSlotId, Long clientId, Long serviceId) {
-        TimeSlot timeSlot = timeSlotRepository.findById(timeSlotId)
-                .orElseThrow(() -> new EntityNotFoundException("Time slot " + timeSlotId + " not found."));
-
+    public Booking bookTimeSlot(Long availabilityId, Long clientId) {
+        Availability availability = availabilityRepository.findById(availabilityId)
+                .orElseThrow(() -> new EntityNotFoundException("Availability with ID " + availabilityId + " not found."));
+        
         User client = userRepository.findById(clientId)
-                .orElseThrow(() -> new EntityNotFoundException("Client " + clientId + " not found."));
-
-        Service service = serviceRepository.findById(serviceId)
-                .orElseThrow(() -> new EntityNotFoundException("Service " + serviceId + " not found."));
-
-        if (timeSlot.getSlotTime().isBefore(LocalDateTime.now())) {
+                .orElseThrow(() -> new EntityNotFoundException("Client with ID " + clientId + " not found."));
+        
+        if (!availability.isAvailable() || availability.isBooked()) {
+            throw new IllegalStateException("This time slot is not available for booking.");
+        }
+        
+        LocalDateTime slotDateTime = LocalDateTime.of(availability.getDate(), availability.getTemplate().getStartTime());
+        if (slotDateTime.isBefore(LocalDateTime.now())) {
             throw new IllegalStateException("Cannot book a time slot that has already passed.");
         }
-        if (timeSlot.isBooked()) {
-            throw new IllegalStateException("This time slot is already booked. Please choose another.");
-        }
 
-        timeSlot.setBooked(true);
-        timeSlotRepository.save(timeSlot);
-
+        availability.setBooked(true);
+        availabilityRepository.save(availability);
+        
         Booking newBooking = new Booking();
         newBooking.setClient(client);
-        newBooking.setService(service);
-        newBooking.setTimeSlot(timeSlot);
-
+        newBooking.setAvailability(availability);
         return bookingRepository.save(newBooking);
     }
+    
+    @Override
+    public List<BookingDetailsDto> findBookedAppointmentsByDate(LocalDate date) {
+        return List.of(); 
+    }
 
+    @Override
     @Transactional
     public void cancelBooking(Long bookingId) {
         Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new EntityNotFoundException("Booking " + bookingId + " not found."));
+                .orElseThrow(() -> new EntityNotFoundException("Booking with ID " + bookingId + " not found."));
 
-        if (booking.getTimeSlot().getSlotTime().isBefore(LocalDateTime.now())) {
-            throw new IllegalStateException("Cannot cancel a booking that has already passed.");
-        }
-
-        TimeSlot timeSlot = booking.getTimeSlot();
-        timeSlot.setBooked(false);
-        timeSlotRepository.save(timeSlot);
+        Availability availability = booking.getAvailability();
+        availability.setBooked(false);
+        availabilityRepository.save(availability);
         bookingRepository.delete(booking);
     }
 
+    @Override
     @Transactional
-    public void updateBookingTimeSlot(Long bookingId, Long newTimeSlotId) {
-        Booking bookingToUpdate = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new EntityNotFoundException("Booking " + bookingId + " not found."));
-
-        TimeSlot newTimeSlot = timeSlotRepository.findById(newTimeSlotId)
-                .orElseThrow(() -> new EntityNotFoundException("New time slot " + newTimeSlotId + " not found."));
-
-        TimeSlot oldTimeSlot = bookingToUpdate.getTimeSlot();
+    public void updateBookingTimeSlot(Long bookingId, Long newAvailabilityId) {
+        Booking bookingToUpdate = bookingRepository.findById(bookingId).orElseThrow(/*...*/);
+        Availability newAvailability = availabilityRepository.findById(newAvailabilityId).orElseThrow(/*...*/);
         
-        if (oldTimeSlot.getId().equals(newTimeSlot.getId())) {
-            throw new IllegalStateException("Cannot change the time slot to one that is already booked.");
-        }
-        
-        if (newTimeSlot.isBooked()) {
-            throw new IllegalStateException("Desired new time slot is already booked. Please choose another.");
-        }
-        
-        if (newTimeSlot.getSlotTime().isBefore(LocalDateTime.now())) {
-            throw new IllegalStateException("Cannot change the time slot to one that has already passed.");
+        if (!newAvailability.isAvailable() || newAvailability.isBooked()) {
+            throw new IllegalStateException("New time slot is not available.");
         }
 
-        oldTimeSlot.setBooked(false);
-        timeSlotRepository.save(oldTimeSlot);
+        Availability oldAvailability = bookingToUpdate.getAvailability();
+        oldAvailability.setBooked(false);
+        availabilityRepository.save(oldAvailability);
 
-        newTimeSlot.setBooked(true);
-        timeSlotRepository.save(newTimeSlot);
-
-        bookingToUpdate.setTimeSlot(newTimeSlot);
+        newAvailability.setBooked(true);
+        availabilityRepository.save(newAvailability);
+        
+        bookingToUpdate.setAvailability(newAvailability);
         bookingRepository.save(bookingToUpdate);
-    }
-
-    private BookingDetailsDto mapToBookingDetailsDto(Booking booking) {
-        return new BookingDetailsDto(
-        booking.getId(),
-        booking.getClient() != null ? booking.getClient().getEmail() : null,
-        booking.getService() != null ? booking.getService().getName() : null,
-        booking.getTimeSlot() != null ? booking.getTimeSlot().getSlotTime() : null
-        );
     }
 }

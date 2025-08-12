@@ -26,7 +26,9 @@ export const createService = (serviceData, tenantId) => apiClient.post(`/service
 export const getAllTenants = () => apiClient.get('/users/tenants');
 export const getServicesByTenant = (tenantId) => apiClient.get(`/services/tenant/${tenantId}`);
 export const getServiceById = (id) => apiClient.get(`/services/${id}`);
-export const getAvailableSlotsForService = (serviceId, date) => apiClient.get(`/services/${serviceId}/available-slots?date=${date}`);
+export const getAvailableSlotsForService = (serviceId, date) => {
+  return apiClient.get(`/availabilities/service/${serviceId}?date=${date}`);
+};
 export const bookSlot = (slotId, bookingData) => apiClient.post(`/slots/${slotId}/book`, bookingData);
 
 export const getMyServices = () => apiClient.get('/services/my-services');

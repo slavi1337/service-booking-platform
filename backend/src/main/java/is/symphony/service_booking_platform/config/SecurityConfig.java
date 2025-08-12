@@ -30,12 +30,19 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/services/*").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/slots/available", "/api/services").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/services").permitAll() 
+                        .requestMatchers(HttpMethod.GET, "/api/services/{id}").permitAll()
+
+                        .requestMatchers(HttpMethod.GET, "/api/users/tenants").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/services/tenant/{tenantId}").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/availabilities/service/**").authenticated()
+
                         .requestMatchers(HttpMethod.POST, "/api/services").hasRole("TENANT")
                         .requestMatchers(HttpMethod.GET, "/api/services/my-services").hasRole("TENANT")
-                        .requestMatchers(HttpMethod.POST, "/api/slots/*/book").hasRole("USER")
-                        .anyRequest().authenticated()
+
+                        .requestMatchers(HttpMethod.POST, "/api/bookings").hasRole("USER")
+                        
+                        .anyRequest().authenticated() 
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)

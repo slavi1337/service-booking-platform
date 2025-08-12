@@ -2,14 +2,14 @@ package is.symphony.service_booking_platform.controller;
 
 import is.symphony.service_booking_platform.dto.ServiceDto;
 import is.symphony.service_booking_platform.model.Service;
+import is.symphony.service_booking_platform.model.User;
 import is.symphony.service_booking_platform.service.interfaces.IServiceService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
-import is.symphony.service_booking_platform.model.User;
+import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
@@ -20,9 +20,10 @@ public class ServiceController {
     private final IServiceService serviceService;
 
     @PostMapping
-    public ResponseEntity<?> createService(@RequestBody Service service, @RequestParam Long tenantId) {
+    public ResponseEntity<?> createService(@RequestBody Service service, Authentication authentication) {
         try {
-            Service createdService = serviceService.createService(service, tenantId);
+            User loggedInUser = (User) authentication.getPrincipal();
+            ServiceDto createdService = serviceService.createService(service, loggedInUser.getId());
             return new ResponseEntity<>(createdService, HttpStatus.CREATED);
         } catch (EntityNotFoundException | IllegalStateException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -35,6 +36,12 @@ public class ServiceController {
         return ResponseEntity.ok(services);
     }
 
+    @GetMapping("/my-services")
+    public ResponseEntity<List<ServiceDto>> getMyServices(Authentication authentication) {
+        User loggedInUser = (User) authentication.getPrincipal();
+        return ResponseEntity.ok(serviceService.findServicesByTenant(loggedInUser.getId()));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ServiceDto> getServiceById(@PathVariable Long id) {
         ServiceDto service = serviceService.findById(id); 
@@ -44,14 +51,6 @@ public class ServiceController {
     @GetMapping("/tenant/{tenantId}")
     public ResponseEntity<List<ServiceDto>> getServicesByTenant(@PathVariable Long tenantId) {
         List<ServiceDto> services = serviceService.findServicesByTenant(tenantId);
-        return ResponseEntity.ok(services);
-    }
-
-    @GetMapping("/my-services")
-    public ResponseEntity<List<ServiceDto>> getMyServices(Authentication authentication) {
-        User loggedInUser = (User) authentication.getPrincipal();
-        
-        List<ServiceDto> services = serviceService.findMyServices(loggedInUser);
         return ResponseEntity.ok(services);
     }
 }
