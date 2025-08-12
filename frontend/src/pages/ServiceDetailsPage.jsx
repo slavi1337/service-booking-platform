@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-
 import {
   Container,
   Typography,
@@ -13,109 +12,141 @@ import {
   Snackbar,
   TextField,
 } from '@mui/material'
-import { useParams, useNavigate } from 'react-router-dom'
-
-import { getServiceById, getAvailableSlotsForService, createBooking } from '../api'
-import { useAuth } from '../context/AuthContext';
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
+import { getServiceById, getAllSlotStatusesForService, createBooking } from '../api'
+import { useAuth } from '../context/AuthContext'
 
 const modalStyle = {
-  position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-  width: 'auto', maxWidth: '90%', bgcolor: 'background.paper', border: '2px solid #000', boxShadow: 24, p: 4,
-};
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 'auto',
+  minWidth: 300,
+  maxWidth: '90%',
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
+}
 
 const ServiceDetailsPage = () => {
   const { serviceId } = useParams()
-  const navigate = useNavigate();
-  const { user } = useAuth();
+  const navigate = useNavigate()
+  const location = useLocation()
+  const { user } = useAuth()
+
   const [service, setService] = useState(null)
   const [slots, setSlots] = useState([])
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
-  const [loadingService, setLoadingService] = useState(true);
-  const [loadingSlots, setLoadingSlots] = useState(true);
-  const [error, setError] = useState(null);
-  
-  const [selectedSlot, setSelectedSlot] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [bookingError, setBookingError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
+  const [loadingService, setLoadingService] = useState(true)
+  const [loadingSlots, setLoadingSlots] = useState(true)
+  const [error, setError] = useState(null)
+  const [selectedSlot, setSelectedSlot] = useState(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [bookingError, setBookingError] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
 
   useEffect(() => {
     const fetchServiceDetails = async () => {
-      setLoadingService(true);
+      setLoadingService(true)
+      setError(null)
       try {
         const response = await getServiceById(serviceId)
         setService(response.data)
       } catch (err) {
-        setError('Failed to fetch service details.')
-      }
-      finally {
+        setError('Neuspješno dohvatanje detalja servisa.')
+        console.error(err)
+      } finally {
         setLoadingService(false)
       }
     }
     fetchServiceDetails()
   }, [serviceId])
 
-  useEffect(() => {
-    if (!serviceId) return;
-    const fetchSlots = async () => {
-      setLoadingSlots(true)
-      setError(null)
-      try {
-        const response = await getAvailableSlotsForService(serviceId, selectedDate);
-        //console.log("Podaci dobijeni sa servera:", response.data);
-        setSlots(response.data)
-      } catch (err) {
-        setError('Failed to fetch available slots.')
-      } finally {
-        setLoadingSlots(false)
-      }
+  const fetchAllSlots = async () => {
+    if (!serviceId) return
+    setLoadingSlots(true)
+    setError(null)
+    try {
+      const response = await getAllSlotStatusesForService(serviceId, selectedDate)
+      setSlots(response.data)
+    } catch (err) {
+      setError('Neuspješno dohvatanje termina.')
+      console.error(err)
+    } finally {
+      setLoadingSlots(false)
     }
-    fetchSlots()
+  }
+
+  useEffect(() => {
+    fetchAllSlots()
   }, [selectedDate, serviceId])
 
   const handleOpenModal = (slot) => {
-        if (!user) {
-            navigate('/login', { state: { from: location } }); // Preusmeri na login ako nije ulogovan
-            return;
-        }
-        if (user.role !== 'ROLE_USER') {
-            alert("Only users can book appointments.");
-            return;
-        }
-        setSelectedSlot(slot);
-        setIsModalOpen(true);
-  };
+    if (!user) {
+      navigate('/login', { state: { from: location } })
+      return
+    }
+    if (user.role !== 'ROLE_USER') {
+      alert('Samo registrovani korisnici mogu rezervisati termine.')
+      return
+    }
+    setSelectedSlot(slot)
+    setIsModalOpen(true)
+  }
 
-  const handleCloseModal = () => setIsModalOpen(false);
+  const handleCloseModal = () => setIsModalOpen(false)
 
   const handleConfirmBooking = async () => {
-        if (!selectedSlot || !user) return;
-        setBookingError('');
-        try {
-            const bookingData = { 
-                availabilityId: selectedSlot.id, 
-                clientId: user.id 
-            };
-            await createBooking(bookingData);
-            
-            setSuccessMessage(`Successfully booked appointment on ${new Date(selectedSlot.startTime).toLocaleString()}`);
-            handleCloseModal();
-            const response = await getAvailableSlotsForService(serviceId, selectedDate);
-            setSlots(response.data);
-        } catch (err) {
-            setBookingError(err.response?.data?.message || "An error occurred while booking the appointment.");
-        }
-    };
+    if (!selectedSlot || !user) return
+    setBookingError('')
+    try {
+      const bookingData = {
+        availabilityId: selectedSlot.id,
+        clientId: user.id,
+      }
+      await createBooking(bookingData)
+      setSuccessMessage(
+        `Uspješno ste rezervisali termin ${new Date(selectedSlot.startTime).toLocaleString()}`,
+      )
+      handleCloseModal()
+      fetchAllSlots()
+    } catch (err) {
+      setBookingError(
+        err.response?.data?.message ||
+          err.response?.data ||
+          'Došlo je do greške prilikom rezervacije.',
+      )
+    }
+  }
 
   if (loadingService) {
-    return <CircularProgress sx={{ display: 'block', margin: 'auto', mt: 4 }} />;
-  }
-  if (!service) {
-    return <Alert severity="warning" sx={{ m: 4 }}>Service not found.</Alert>;
+    return (
+      <Container sx={{ textAlign: 'center', mt: 5 }}>
+        <CircularProgress />
+      </Container>
+    )
   }
 
   if (error) {
-    return <Alert severity="error" sx={{ m: 4 }}>{error}</Alert>;
+    return (
+      <Container>
+        <Alert severity="error" sx={{ mt: 4 }}>
+          {error}
+        </Alert>
+      </Container>
+    )
+  }
+
+  if (!service) {
+    return (
+      <Container>
+        <Alert severity="warning" sx={{ mt: 4 }}>
+          Servis nije pronađen.
+        </Alert>
+      </Container>
+    )
   }
 
   return (
@@ -130,32 +161,39 @@ const ServiceDetailsPage = () => {
         <Typography variant="body1" sx={{ my: 2 }}>
           {service.description}
         </Typography>
-        <Typography variant="h5">Price: {service.price}€</Typography>
-        <Typography variant="body1">Duration: {service.durationInMinutes} minutes</Typography>
+        <Typography variant="h5">Cijena: {service.price.toFixed(2)}€</Typography>
+        <Typography variant="body1">Trajanje: {service.durationInMinutes} minuta</Typography>
       </Paper>
 
       <Box>
         <Typography variant="h5" gutterBottom>
-          Available Appointments
+          Dostupni Termini
         </Typography>
         <TextField
           id="date"
-          label="Select Date"
+          label="Izaberite Datum"
           type="date"
           value={selectedDate}
           onChange={(e) => setSelectedDate(e.target.value)}
-          InputLabelProps={{
-            shrink: true,
-          }}
+          InputLabelProps={{ shrink: true }}
         />
-        {loadingSlots ? ( 
+        {loadingSlots ? (
           <CircularProgress sx={{ display: 'block', mt: 2 }} />
         ) : (
           <Grid container spacing={1} sx={{ mt: 2 }}>
             {slots.length > 0 ? (
               slots.map((slot) => (
                 <Grid item key={slot.id}>
-                  <Button variant="outlined" onClick={() => handleOpenModal(slot)}>
+                  <Button
+                    variant={slot.isBooked ? 'contained' : 'outlined'}
+                    color={slot.isBooked ? 'error' : 'primary'}
+                    disabled={slot.isBooked}
+                    onClick={() => handleOpenModal(slot)}
+                    sx={{
+                      cursor: slot.isBooked ? 'not-allowed' : 'pointer',
+                      minWidth: '90px',
+                    }}
+                  >
                     {new Date(slot.startTime).toLocaleTimeString([], {
                       hour: '2-digit',
                       minute: '2-digit',
@@ -164,7 +202,7 @@ const ServiceDetailsPage = () => {
                 </Grid>
               ))
             ) : (
-              <Typography sx={{ ml: 1, mt: 1 }}>No available slots for this date.</Typography>
+              <Typography sx={{ ml: 1, mt: 2 }}>Nema termina za izabrani datum.</Typography>
             )}
           </Grid>
         )}
@@ -177,25 +215,36 @@ const ServiceDetailsPage = () => {
       >
         <Box sx={modalStyle}>
           <Typography id="booking-confirmation-title" variant="h6" component="h2">
-            Confirm Booking
+            Potvrda Rezervacije
           </Typography>
           {selectedSlot && (
             <Typography sx={{ mt: 2 }}>
-              Are you sure you want to book the service 
-              <strong> "{service?.name}"</strong> at 
-              <strong> {new Date(selectedSlot.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</strong>?
+              Da li ste sigurni da želite da rezervišete uslugu
+              <strong> "{service?.name}"</strong> u terminu
+              <strong>
+                {' '}
+                {new Date(selectedSlot.startTime).toLocaleTimeString([], {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}
+              </strong>
+              ?
             </Typography>
           )}
-          {bookingError && <Alert severity="error" sx={{ mt: 2 }}>{bookingError}</Alert>}
+          {bookingError && (
+            <Alert severity="error" sx={{ mt: 2 }}>
+              {bookingError}
+            </Alert>
+          )}
           <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-            <Button onClick={handleCloseModal}>Cancel</Button>
+            <Button onClick={handleCloseModal}>Otkaži</Button>
             <Button variant="contained" onClick={handleConfirmBooking}>
-              Confirm
+              Potvrdi
             </Button>
           </Box>
         </Box>
       </Modal>
-      
+
       <Snackbar
         open={!!successMessage}
         autoHideDuration={6000}

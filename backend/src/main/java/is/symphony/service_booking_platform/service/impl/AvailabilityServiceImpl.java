@@ -1,15 +1,18 @@
 package is.symphony.service_booking_platform.service.impl;
 
-import is.symphony.service_booking_platform.dto.AvailabilityDto;
-import is.symphony.service_booking_platform.model.Availability;
-import is.symphony.service_booking_platform.repository.AvailabilityRepository;
-import is.symphony.service_booking_platform.service.interfaces.IAvailabilityService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
+import is.symphony.service_booking_platform.dto.AvailabilityDto;
+import is.symphony.service_booking_platform.dto.AvailabilityStatusDto;
+import is.symphony.service_booking_platform.model.Availability;
+import is.symphony.service_booking_platform.repository.AvailabilityRepository;
+import is.symphony.service_booking_platform.service.interfaces.IAvailabilityService;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +35,14 @@ public class AvailabilityServiceImpl implements IAvailabilityService {
         availabilityRepository.save(availability);
     }
 
+    @Override
+    public List<AvailabilityStatusDto> findAllByServiceAndDate(Long serviceId, LocalDate date) {
+        return availabilityRepository.findByServiceIdAndDateAndIsAvailableTrueOrderByTemplateStartTimeAsc(serviceId, date)
+                .stream()
+                .map(this::mapToStatusDto) 
+                .collect(Collectors.toList());
+    }
+
     private AvailabilityDto mapToDto(Availability availability) {
         LocalDateTime dateTime = LocalDateTime.of(
             availability.getDate(),
@@ -39,5 +50,17 @@ public class AvailabilityServiceImpl implements IAvailabilityService {
         );
 
         return new AvailabilityDto(availability.getId(), dateTime);
+    }
+
+    private AvailabilityStatusDto mapToStatusDto(Availability availability) {
+        LocalDateTime dateTime = LocalDateTime.of(
+            availability.getDate(),
+            availability.getTemplate().getStartTime()
+        );
+        return new AvailabilityStatusDto(
+            availability.getId(), 
+            dateTime, 
+            availability.isBooked()
+        );
     }
 }
