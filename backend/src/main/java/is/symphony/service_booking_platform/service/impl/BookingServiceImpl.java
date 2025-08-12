@@ -1,16 +1,25 @@
 package is.symphony.service_booking_platform.service.impl;
 
-import is.symphony.service_booking_platform.dto.BookingDetailsDto;
-import is.symphony.service_booking_platform.model.*;
-import is.symphony.service_booking_platform.repository.*;
-import is.symphony.service_booking_platform.service.interfaces.IBookingService;
-import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
-import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.springframework.transaction.annotation.Transactional;
+
+import is.symphony.service_booking_platform.dto.BookingDetailsDto;
+import is.symphony.service_booking_platform.dto.MyBookingDto;
+import is.symphony.service_booking_platform.model.Availability;
+import is.symphony.service_booking_platform.model.Booking;
+import is.symphony.service_booking_platform.model.Service;
+import is.symphony.service_booking_platform.model.TimeTemplate;
+import is.symphony.service_booking_platform.model.User;
+import is.symphony.service_booking_platform.repository.AvailabilityRepository;
+import is.symphony.service_booking_platform.repository.BookingRepository;
+import is.symphony.service_booking_platform.repository.UserRepository;
+import is.symphony.service_booking_platform.service.interfaces.IBookingService;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 
 @org.springframework.stereotype.Service
 @RequiredArgsConstructor
@@ -97,6 +106,7 @@ public class BookingServiceImpl implements IBookingService {
     @Override
     @Transactional
     public void updateBookingTimeSlot(Long bookingId, Long newAvailabilityId) {
+        /*posije dodati */
         Booking bookingToUpdate = bookingRepository.findById(bookingId).orElseThrow(/*...*/);
         Availability newAvailability = availabilityRepository.findById(newAvailabilityId).orElseThrow(/*...*/);
         
@@ -113,5 +123,32 @@ public class BookingServiceImpl implements IBookingService {
         
         bookingToUpdate.setAvailability(newAvailability);
         bookingRepository.save(bookingToUpdate);
+    }
+
+    @Override
+    public List<MyBookingDto> findBookingsByClientId(Long clientId) {
+        List<Booking> bookings = bookingRepository.findByClientIdOrderByAvailabilityDateDescAvailabilityTemplateStartTimeDesc(clientId);
+        
+        return bookings.stream()
+                .map(this::mapToMyBookingDto)
+                .collect(Collectors.toList());
+    }
+
+    private MyBookingDto mapToMyBookingDto(Booking booking) {
+       Availability availability = booking.getAvailability();
+        Service service = availability.getService();
+        User tenant = service.getProviderTenant();
+        
+        String tenantName = tenant.getBusinessName() != null && !tenant.getBusinessName().isEmpty() 
+            ? tenant.getBusinessName() 
+            : tenant.getFirstName() + " " + tenant.getLastName();
+
+        return new MyBookingDto(
+            booking.getId(),
+            service.getName(),
+            tenantName,
+            availability.getDate(),
+            availability.getTemplate().getStartTime()
+        );
     }
 }

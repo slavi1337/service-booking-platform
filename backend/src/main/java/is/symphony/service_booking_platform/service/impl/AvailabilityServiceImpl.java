@@ -12,10 +12,10 @@ import is.symphony.service_booking_platform.dto.AvailabilityStatusDto;
 import is.symphony.service_booking_platform.model.Availability;
 import is.symphony.service_booking_platform.model.Booking;
 import is.symphony.service_booking_platform.repository.AvailabilityRepository;
+import is.symphony.service_booking_platform.repository.BookingRepository;
 import is.symphony.service_booking_platform.service.interfaces.IAvailabilityService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import is.symphony.service_booking_platform.repository.BookingRepository;
 
 @Service
 @RequiredArgsConstructor

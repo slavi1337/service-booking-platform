@@ -1,17 +1,30 @@
 package is.symphony.service_booking_platform.controller;
 
-import is.symphony.service_booking_platform.dto.BookingDetailsDto;
-import is.symphony.service_booking_platform.dto.request.BookingRequest;
-import is.symphony.service_booking_platform.dto.request.UpdateBookingRequest;
-import is.symphony.service_booking_platform.service.interfaces.IBookingService;
-import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import is.symphony.service_booking_platform.dto.BookingDetailsDto;
+import is.symphony.service_booking_platform.dto.MyBookingDto;
+import is.symphony.service_booking_platform.dto.request.BookingRequest;
+import is.symphony.service_booking_platform.dto.request.UpdateBookingRequest;
+import is.symphony.service_booking_platform.model.User;
+import is.symphony.service_booking_platform.service.interfaces.IBookingService;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/bookings")
@@ -76,4 +89,11 @@ public class BookingController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @GetMapping("/my-bookings")
+    public ResponseEntity<List<MyBookingDto>> getMyBookings(@AuthenticationPrincipal User user) {
+        
+        List<MyBookingDto> bookings = bookingService.findBookingsByClientId(user.getId());
+        return ResponseEntity.ok(bookings);
+      }  
 }
