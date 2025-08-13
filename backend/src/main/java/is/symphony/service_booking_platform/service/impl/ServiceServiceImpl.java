@@ -1,5 +1,7 @@
 package is.symphony.service_booking_platform.service.impl;
 
+import is.symphony.service_booking_platform.dto.CategoryDto;
+import is.symphony.service_booking_platform.dto.ServiceCardDto;
 import is.symphony.service_booking_platform.dto.ServiceDto;
 import is.symphony.service_booking_platform.model.Service;
 import is.symphony.service_booking_platform.model.User;
@@ -88,5 +90,35 @@ public class ServiceServiceImpl implements IServiceService {
         return new ServiceDto(
                 service.getId(), service.getName(), service.getCategory(), service.getDescription(),
                 service.getPrice(), service.getDurationInMinutes(), tenantName, tenantId);
+    }
+
+       @Override
+    public List<CategoryDto> findAllDistinctCategories() {
+        return serviceRepository.findDistinctCategories().stream()
+                .map(CategoryDto::new)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ServiceCardDto> findServicesByCategory(String category) {
+        return serviceRepository.findByCategory(category).stream()
+                .map(this::mapToServiceCardDto)
+                .collect(Collectors.toList());
+    }
+
+    
+    private ServiceCardDto mapToServiceCardDto(Service service) {
+        User tenant = service.getProviderTenant();
+        String tenantName = tenant.getBusinessName() != null && !tenant.getBusinessName().isEmpty()
+                ? tenant.getBusinessName()
+                : tenant.getFirstName() + " " + tenant.getLastName();
+
+        return new ServiceCardDto(
+                service.getId(),
+                service.getName(),
+                tenantName,
+                service.getPrice(),
+                service.getDurationInMinutes()
+        );
     }
 }

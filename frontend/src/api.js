@@ -53,5 +53,13 @@ export const cancelBooking = (bookingId) => {
 }
 
 export const cancelBookingByTenant = (bookingId) => {
-  return apiClient.delete(`/bookings/tenant/${bookingId}`);
-};
+  return apiClient.delete(`/bookings/tenant/${bookingId}`)
+}
+
+export const getAllCategories = () => {
+  return apiClient.get('/categories')
+}
+
+export const getServicesByCategory = (categoryName) => {
+  return apiClient.get(`/categories/${categoryName}/services`)
+}

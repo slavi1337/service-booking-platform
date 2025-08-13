@@ -1,8 +1,11 @@
 package is.symphony.service_booking_platform.service.interfaces;
 
+import java.util.List;
+
+import is.symphony.service_booking_platform.dto.CategoryDto;
+import is.symphony.service_booking_platform.dto.ServiceCardDto;
 import is.symphony.service_booking_platform.dto.ServiceDto;
 import is.symphony.service_booking_platform.model.Service;
-import java.util.List;
 
 public interface IServiceService {
     ServiceDto createService(Service service, Long tenantId);
@@ -12,4 +15,8 @@ public interface IServiceService {
     List<ServiceDto> findServicesByTenant(Long tenantId);
 
     ServiceDto findById(Long id);
+
+
+     List<CategoryDto> findAllDistinctCategories();
+    List<ServiceCardDto> findServicesByCategory(String category);
 }
