@@ -98,6 +98,12 @@ public class BookingServiceImpl implements IBookingService {
                 .orElseThrow(() -> new EntityNotFoundException("Booking with ID " + bookingId + " not found."));
 
         Availability availability = booking.getAvailability();
+
+        LocalDateTime slotDateTime=LocalDateTime.of(availability.getDate(), availability.getTemplate().getStartTime());
+        if(slotDateTime.isBefore(LocalDateTime.now())){
+            throw new IllegalStateException("Cannot cancel a booking that has already passed");
+        }
+        
         availability.setBooked(false);
         availabilityRepository.save(availability);
         bookingRepository.delete(booking);
