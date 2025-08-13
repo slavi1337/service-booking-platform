@@ -6,6 +6,9 @@ import {
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { getServiceById, getAllSlotStatusesForService, createBooking, getBookingDetails, toggleAvailability } from '../api';
 import { useAuth } from '../context/AuthContext';
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
+import './CalendarStyles.css';
 
 const modalStyle = {
   position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
@@ -21,11 +24,11 @@ const ServiceDetailsPage = () => {
 
   const [service, setService] = useState(null);
   const [slots, setSlots] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [loadingService, setLoadingService] = useState(true);
   const [loadingSlots, setLoadingSlots] = useState(true);
   const [error, setError] = useState(null);
-  
+
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [bookingDetails, setBookingDetails] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -48,7 +51,16 @@ const ServiceDetailsPage = () => {
     if (!serviceId) return;
     setLoadingSlots(true);
     try {
-      const response = await getAllSlotStatusesForService(serviceId, selectedDate);
+      const formatDateForAPI = (date) => {
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const day = date.getDate().toString().padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      };
+
+      const dateString = formatDateForAPI(selectedDate);
+
+      const response = await getAllSlotStatusesForService(serviceId, dateString);
       setSlots(response.data);
     } catch (err) { setError('Failed to fetch slots for this date.'); }
     finally { setLoadingSlots(false); }
@@ -63,18 +75,18 @@ const ServiceDetailsPage = () => {
       navigate('/login', { state: { from: location } });
       return;
     }
-    
+
     setSelectedSlot(slot);
     setBookingError('');
     setBookingDetails(null);
 
     if (user.role === 'ROLE_TENANT' && slot.isBooked && slot.bookingId) {
-        try {
-            const response = await getBookingDetails(slot.bookingId);
-            setBookingDetails(response.data);
-        } catch (err) {
-            setBookingError("Could not fetch booking details.");
-        }
+      try {
+        const response = await getBookingDetails(slot.bookingId);
+        setBookingDetails(response.data);
+      } catch (err) {
+        setBookingError("Could not fetch booking details.");
+      }
     }
     setIsModalOpen(true);
   };
@@ -89,32 +101,30 @@ const ServiceDetailsPage = () => {
       await createBooking(bookingData);
       setSuccessMessage(`Successfully booked appointment!`);
       handleCloseModal();
-      await fetchAllSlots(); // Osveži listu slotova
+      await fetchAllSlots();
     } catch (err) {
       setBookingError(err.response?.data?.message || err.response?.data || 'An error occurred while booking.');
     }
   };
 
   const handleToggleAvailability = async (slot) => {
-        if (!slot) return;
-        
-        const newAvailabilityStatus = !slot.isAvailable;
-        try {
-            await toggleAvailability(slot.id, newAvailabilityStatus);
+    if (!slot) return;
 
-            // Ažuriraj stanje lokalno za trenutan feedback korisniku
-            setSlots(currentSlots => 
-                currentSlots.map(s => 
-                    s.id === slot.id ? { ...s, isAvailable: newAvailabilityStatus } : s
-                )
-            );
-            handleCloseModal(); // Zatvori modal nakon akcije
+    const newAvailabilityStatus = !slot.isAvailable;
+    try {
+      await toggleAvailability(slot.id, newAvailabilityStatus);
 
-        } catch (err) {
-            setBookingError("Failed to update slot status. It might be already booked.");
-            // Ne zatvaramo modal da korisnik vidi grešku
-        }
-    };
+      setSlots(currentSlots =>
+        currentSlots.map(s =>
+          s.id === slot.id ? { ...s, isAvailable: newAvailabilityStatus } : s
+        )
+      );
+      handleCloseModal();
+
+    } catch (err) {
+      setBookingError("Failed to update slot status. It might be already booked.");
+    }
+  };
 
   if (loadingService) return <Container sx={{ textAlign: 'center', mt: 5 }}><CircularProgress /></Container>;
   if (error) return <Container><Alert severity="error" sx={{ mt: 4 }}>{error}</Alert></Container>;
@@ -131,43 +141,75 @@ const ServiceDetailsPage = () => {
       </Paper>
 
       <Box>
-        <Typography variant="h5" gutterBottom>Available Slots</Typography>
-        <TextField id="date" label="Select Date" type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} InputLabelProps={{ shrink: true }}/>
-        
-        {loadingSlots ? <CircularProgress sx={{ display: 'block', mt: 2 }} /> : (
-          <Grid container spacing={1} sx={{ mt: 2 }}>
-            {slots.length > 0 ? (
-              slots.map((slot) => {
-                const isBooked = slot.isBooked;
-                const isUnavailable = !slot.isAvailable;
-                const isDisabledForUser = user?.role === 'ROLE_USER' && (isBooked || isUnavailable);
-                
-                let buttonVariant = 'outlined';
-                let buttonColor = 'primary';
-                if (isBooked) {
-                    buttonVariant = 'contained';
-                    buttonColor = 'error';
-                } else if (isUnavailable) {
-                    buttonVariant = 'contained';
-                    buttonColor = 'inherit';
-                }
+        <Typography variant="h5" gutterBottom>
+          Available Appointments
+        </Typography>
 
-                return (
-                  <Grid item key={slot.id}>
-                    <Button
-                      variant={buttonVariant}
-                      color={buttonColor}
-                      disabled={isDisabledForUser}
-                      onClick={() => handleSlotClick(slot)}
-                    >
-                      {new Date(slot.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </Button>
-                  </Grid>
-                );
-              })
-            ) : <Typography sx={{ ml: 1, mt: 2 }}>No slots available for the selected date.</Typography>}
+        <Grid container spacing={4} sx={{ mt: 1 }}>
+
+          <Grid item xs={12} md={6}>
+            <Box sx={{ display: 'flex', justifyContent: { xs: 'center', md: 'flex-start' } }}>
+              <Calendar
+                onChange={setSelectedDate}
+                value={selectedDate}
+                minDate={new Date()}
+                tileDisabled={({ date, view }) =>
+                  view === 'month' && date < new Date().setHours(0, 0, 0, 0)
+                }
+              />
+            </Box>
           </Grid>
-        )}
+          <Grid item xs={12} md={6}>
+            <Typography variant="h6">
+              Slots for {selectedDate.toLocaleDateString('en-GB')}:
+            </Typography>
+
+            <Box sx={{ minHeight: 200, mt: 2, p: 1, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
+              {loadingSlots ? (
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                  <CircularProgress />
+                </Box>
+              ) : (
+                <Grid container spacing={1}>
+                  {slots.length > 0 ? (
+                    slots.map((slot) => {
+                      const isBooked = slot.isBooked;
+                      const isUnavailable = !slot.isAvailable;
+                      const isDisabledForUser = user?.role === 'ROLE_USER' && (isBooked || isUnavailable);
+
+                      let buttonVariant = 'outlined';
+                      let buttonColor = 'primary';
+                      if (isBooked) {
+                        buttonVariant = 'contained';
+                        buttonColor = 'error';
+                      } else if (isUnavailable) {
+                        buttonVariant = 'contained';
+                        buttonColor = 'inherit';
+                      }
+
+                      return (
+                        <Grid item key={slot.id}>
+                          <Button
+                            variant={buttonVariant}
+                            color={buttonColor}
+                            disabled={isDisabledForUser}
+                            onClick={() => handleSlotClick(slot)}
+                          >
+                            {new Date(slot.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </Button>
+                        </Grid>
+                      );
+                    })
+                  ) : (
+                    <Typography sx={{ p: 2 }}>
+                      No slots available for the selected date.
+                    </Typography>
+                  )}
+                </Grid>
+              )}
+            </Box>
+          </Grid>
+        </Grid>
       </Box>
 
       <Modal open={isModalOpen} onClose={handleCloseModal}>
@@ -185,7 +227,7 @@ const ServiceDetailsPage = () => {
               </Box>
             </>
           )}
-          {user?.role === 'ROLE_TENANT' && selectedSlot && (
+          {user?.role === 'TENANT' && selectedSlot && (
             <>
               <Typography variant="h6">Slot Details</Typography>
               <Typography sx={{ mt: 2 }}><strong>Time:</strong> {new Date(selectedSlot.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Typography>
@@ -203,7 +245,7 @@ const ServiceDetailsPage = () => {
                 <Box sx={{ mt: 1 }}>
                   <Typography><strong>Status:</strong> {selectedSlot.isAvailable ? 'Available' : 'Unavailable by You'}</Typography>
                   <Button variant="outlined" sx={{ mt: 2 }} onClick={() => handleToggleAvailability(selectedSlot)}
-                                    color={selectedSlot.isAvailable ? 'warning' : 'success'}>
+                    color={selectedSlot.isAvailable ? 'warning' : 'success'}>
                     {selectedSlot.isAvailable ? 'Mark as Unavailable' : 'Mark as Available'}
                   </Button>
                 </Box>
@@ -215,7 +257,7 @@ const ServiceDetailsPage = () => {
           )}
         </Box>
       </Modal>
-      
+
       <Snackbar open={!!successMessage} autoHideDuration={6000} onClose={() => setSuccessMessage('')} message={successMessage} />
     </Container>
   );

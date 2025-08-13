@@ -27,9 +27,6 @@ export const createService = (serviceData, tenantId) =>
 export const getAllTenants = () => apiClient.get('/users/tenants')
 export const getServicesByTenant = (tenantId) => apiClient.get(`/services/tenant/${tenantId}`)
 export const getServiceById = (id) => apiClient.get(`/services/${id}`)
-export const getAvailableSlotsForService = (serviceId, date) => {
-  return apiClient.get(`/availabilities/service/${serviceId}?date=${date}`)
-}
 export const getAllSlotStatusesForService = (serviceId, date) => {
   return apiClient.get(`/availabilities/service/${serviceId}/all-slots?date=${date}`)
 }
