@@ -4,7 +4,7 @@ import {
   Button, Modal, Snackbar, TextField
 } from '@mui/material';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { getServiceById, getAllSlotStatusesForService, createBooking, getBookingDetails, toggleAvailability } from '../api';
+import { getServiceById, getAllSlotStatusesForService, createBooking, getBookingDetails, toggleAvailability, cancelBookingByTenant } from '../api';
 import { useAuth } from '../context/AuthContext';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
@@ -126,6 +126,22 @@ const ServiceDetailsPage = () => {
     }
   };
 
+  const handleTenantCancelBooking = async (bookingId) => {
+    if (!bookingId) return;
+
+    if (window.confirm("Are you sure you want to cancel this user's booking?")) {
+      try {
+        await cancelBookingByTenant(bookingId);
+        setSuccessMessage('Booking successfully cancelled.');
+        handleCloseModal();
+        await fetchAllSlots();
+      } catch (err) {
+        setBookingError('Failed to cancel booking.');
+        console.error(err);
+      }
+    }
+  };
+
   if (loadingService) return <Container sx={{ textAlign: 'center', mt: 5 }}><CircularProgress /></Container>;
   if (error) return <Container><Alert severity="error" sx={{ mt: 4 }}>{error}</Alert></Container>;
   if (!service) return <Container><Alert severity="warning" sx={{ mt: 4 }}>Service not found.</Alert></Container>;
@@ -212,25 +228,39 @@ const ServiceDetailsPage = () => {
         </Grid>
       </Box>
 
-      <Modal open={isModalOpen} onClose={handleCloseModal}>
+      <Modal
+        open={isModalOpen}
+        onClose={handleCloseModal}
+        aria-labelledby="modal-title"
+      >
         <Box sx={modalStyle}>
           {user?.role === 'ROLE_USER' && selectedSlot && (
             <>
-              <Typography variant="h6">Booking Confirmation</Typography>
+              <Typography id="modal-title" variant="h6" component="h2">
+                Booking Confirmation
+              </Typography>
               <Typography sx={{ mt: 2 }}>
                 Are you sure you want to book <strong>"{service.name}"</strong> at <strong>{new Date(selectedSlot.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</strong>?
               </Typography>
+
               {bookingError && <Alert severity="error" sx={{ mt: 2 }}>{bookingError}</Alert>}
+
               <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
                 <Button onClick={handleCloseModal}>Cancel</Button>
                 <Button variant="contained" onClick={handleConfirmBooking}>Confirm</Button>
               </Box>
             </>
           )}
-          {user?.role === 'TENANT' && selectedSlot && (
+
+          {user?.role === 'ROLE_TENANT' && selectedSlot && (
             <>
-              <Typography variant="h6">Slot Details</Typography>
-              <Typography sx={{ mt: 2 }}><strong>Time:</strong> {new Date(selectedSlot.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Typography>
+              <Typography id="modal-title" variant="h6" component="h2">
+                Slot Details
+              </Typography>
+              <Typography sx={{ mt: 2 }}>
+                <strong>Time:</strong> {new Date(selectedSlot.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </Typography>
+
               {selectedSlot.isBooked ? (
                 <Box sx={{ mt: 1 }}>
                   <Typography color="error"><strong>Status: Booked</strong></Typography>
@@ -238,18 +268,36 @@ const ServiceDetailsPage = () => {
                     <>
                       <Typography><strong>Client:</strong> {bookingDetails.clientFirstName} {bookingDetails.clientLastName}</Typography>
                       <Typography><strong>Email:</strong> {bookingDetails.clientEmail}</Typography>
+
+                      <Button
+                        variant="contained"
+                        color="warning"
+                        sx={{ mt: 2 }}
+                        onClick={() => handleTenantCancelBooking(bookingDetails.bookingId)}
+                      >
+                        Cancel This Booking
+                      </Button>
                     </>
-                  ) : bookingError ? <Alert severity="error">{bookingError}</Alert> : <CircularProgress size={20} />}
+                  ) : bookingError ? (
+                    <Alert severity="error">{bookingError}</Alert>
+                  ) : (
+                    <CircularProgress size={20} sx={{ mt: 1 }} />
+                  )}
                 </Box>
               ) : (
                 <Box sx={{ mt: 1 }}>
                   <Typography><strong>Status:</strong> {selectedSlot.isAvailable ? 'Available' : 'Unavailable by You'}</Typography>
-                  <Button variant="outlined" sx={{ mt: 2 }} onClick={() => handleToggleAvailability(selectedSlot)}
-                    color={selectedSlot.isAvailable ? 'warning' : 'success'}>
+                  <Button
+                    variant="outlined"
+                    sx={{ mt: 2 }}
+                    onClick={() => handleToggleAvailability(selectedSlot)}
+                    color={selectedSlot.isAvailable ? 'warning' : 'success'}
+                  >
                     {selectedSlot.isAvailable ? 'Mark as Unavailable' : 'Mark as Available'}
                   </Button>
                 </Box>
               )}
+
               <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
                 <Button onClick={handleCloseModal}>Close</Button>
               </Box>
