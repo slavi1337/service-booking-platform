@@ -18,20 +18,20 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import is.symphony.service_booking_platform.dto.BookingDetailsDto;
-import is.symphony.service_booking_platform.dto.MyBookingDto;
 import is.symphony.service_booking_platform.dto.request.BookingRequest;
 import is.symphony.service_booking_platform.dto.request.UpdateBookingRequest;
 import is.symphony.service_booking_platform.model.User;
 import is.symphony.service_booking_platform.service.interfaces.IBookingService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 
 @RestController
 @RequestMapping("/api/bookings")
 @RequiredArgsConstructor
 public class BookingController {
 
-    private final IBookingService bookingService; 
+    private final IBookingService bookingService;
 
     @PostMapping
     public ResponseEntity<?> createBooking(@RequestBody BookingRequest request) {
@@ -55,7 +55,7 @@ public class BookingController {
             return ResponseEntity.badRequest().body("Invalid date format.");
         }
     }
-    
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> cancelBooking(@PathVariable("id") Long bookingId) {
         try {
@@ -91,9 +91,28 @@ public class BookingController {
     }
 
     @GetMapping("/my-bookings")
-    public ResponseEntity<List<MyBookingDto>> getMyBookings(@AuthenticationPrincipal User user) {
-        
-        List<MyBookingDto> bookings = bookingService.findBookingsByClientId(user.getId());
+    public ResponseEntity<List<BookingDetailsDto>> getMyBookings(@AuthenticationPrincipal User user) {
+        List<BookingDetailsDto> bookings = bookingService.findMyBookings(user);
         return ResponseEntity.ok(bookings);
-      }  
+    }
+
+    @DeleteMapping("/tenant/{id}")
+    public ResponseEntity<Void> cancelBookingByTenant(
+            @PathVariable("id") Long bookingId,
+            Authentication authentication) {
+
+        try {
+            User loggedInTenant = (User) authentication.getPrincipal();
+
+            bookingService.cancelBookingByTenant(bookingId, loggedInTenant);
+
+            return ResponseEntity.noContent().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+    }
 }

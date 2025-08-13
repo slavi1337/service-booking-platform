@@ -7,7 +7,7 @@ import lombok.Data;
 @Entity
 @Table(name = "services")
 public class Service {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -30,4 +30,4 @@ public class Service {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tenant_id", nullable = false)
     private User providerTenant;
-}   
+}

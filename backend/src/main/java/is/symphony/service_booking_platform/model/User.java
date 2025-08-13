@@ -3,7 +3,7 @@ package is.symphony.service_booking_platform.model;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import java.util.Collection; 
+import java.util.Collection;
 import java.util.List;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "users")
-public class User implements UserDetails{
+public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,15 +20,15 @@ public class User implements UserDetails{
     private String email;
 
     @Column(nullable = false)
-    private String password; 
+    private String password;
 
     private String firstName;
     private String lastName;
 
-    private String businessName; 
+    private String businessName;
     @Column(columnDefinition = "TEXT")
     private String businessDescription;
-    
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
@@ -40,7 +40,7 @@ public class User implements UserDetails{
 
     @Override
     public String getUsername() {
-        return email; 
+        return email;
     }
 
     @Override

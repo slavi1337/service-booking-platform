@@ -26,56 +26,55 @@ public class AvailabilityServiceImpl implements IAvailabilityService {
 
     @Override
     public List<AvailabilityDto> findAvailableByServiceAndDate(Long serviceId, LocalDate date) {
-        return availabilityRepository.findByServiceIdAndDateAndIsAvailableTrueAndIsBookedFalseOrderByTemplateStartTimeAsc(serviceId, date)
+        return availabilityRepository
+                .findByServiceIdAndDateAndIsAvailableTrueAndIsBookedFalseOrderByTemplateStartTimeAsc(serviceId, date)
                 .stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
     }
-    
+
     @Override
-public void toggleAvailability(Long availabilityId, boolean isAvailable) {
-    Availability availability = availabilityRepository.findById(availabilityId)
-            .orElseThrow(() -> new EntityNotFoundException("Availability with ID " + availabilityId + " not found."));
-    
-    if (availability.isBooked()) {
-        throw new IllegalStateException("Cannot change availability of a booked time slot.");
+    public void toggleAvailability(Long availabilityId, boolean isAvailable) {
+        Availability availability = availabilityRepository.findById(availabilityId)
+                .orElseThrow(
+                        () -> new EntityNotFoundException("Availability with ID " + availabilityId + " not found."));
+
+        if (availability.isBooked()) {
+            throw new IllegalStateException("Cannot change availability of a booked time slot.");
+        }
+
+        availability.setAvailable(isAvailable);
+        availabilityRepository.save(availability);
     }
 
-    availability.setAvailable(isAvailable);
-    availabilityRepository.save(availability);
-}
-
-     @Override
+    @Override
     public List<AvailabilityStatusDto> findAllByServiceAndDate(Long serviceId, LocalDate date) {
         return availabilityRepository.findByServiceIdAndDateOrderByTemplateStartTimeAsc(serviceId, date)
-            .stream()
-            .map(this::mapToStatusDto) 
-            .collect(Collectors.toList());
+                .stream()
+                .map(this::mapToStatusDto)
+                .collect(Collectors.toList());
     }
 
     private AvailabilityDto mapToDto(Availability availability) {
         LocalDateTime dateTime = LocalDateTime.of(
-            availability.getDate(),
-            availability.getTemplate().getStartTime()
-        );
+                availability.getDate(),
+                availability.getTemplate().getStartTime());
 
         return new AvailabilityDto(availability.getId(), dateTime);
     }
 
     private AvailabilityStatusDto mapToStatusDto(Availability availability) {
         LocalDateTime dateTime = LocalDateTime.of(
-            availability.getDate(),
-            availability.getTemplate().getStartTime()
-        );
+                availability.getDate(),
+                availability.getTemplate().getStartTime());
         Booking booking = bookingRepository.findByAvailabilityId(availability.getId()).orElse(null);
         Long bookingId = (booking != null) ? booking.getId() : null;
 
         return new AvailabilityStatusDto(
-            availability.getId(), 
-            dateTime, 
-            availability.isBooked(),
-            availability.isAvailable(),
-            bookingId
-        );
+                availability.getId(),
+                dateTime,
+                availability.isBooked(),
+                availability.isAvailable(),
+                bookingId);
     }
 }

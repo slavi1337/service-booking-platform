@@ -11,12 +11,16 @@ import org.springframework.data.repository.query.Param;
 import is.symphony.service_booking_platform.model.Booking;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
-    
+
     @Query("SELECT b FROM Booking b " +
-           "JOIN FETCH b.availability a " +
-           "JOIN FETCH a.template t " +
-           "WHERE a.date = :targetDate")
+            "JOIN FETCH b.availability a " +
+            "JOIN FETCH a.template t " +
+            "WHERE a.date = :targetDate")
     List<Booking> findBookingsByDate(@Param("targetDate") LocalDate targetDate);
+
     Optional<Booking> findByAvailabilityId(Long availabilityId);
+
     List<Booking> findByClientIdOrderByAvailabilityDateDescAvailabilityTemplateStartTimeDesc(Long clientId);
+
+    List<Booking> findByClientId(Long clientId);
 }

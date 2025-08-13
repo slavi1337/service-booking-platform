@@ -29,13 +29,12 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
     }
 
     public LoginResponseDto authenticate(String email, String password) {
-    authenticationManager.authenticate(
-        new UsernamePasswordAuthenticationToken(email, password)
-    );
-    User user = userRepository.findByEmail(email).orElseThrow();
-    String jwtToken = jwtService.generateToken(user);
-    
-    user.setPassword(null);
-    return new LoginResponseDto(jwtToken, user);
-}
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(email, password));
+        User user = userRepository.findByEmail(email).orElseThrow();
+        String jwtToken = jwtService.generateToken(user);
+
+        user.setPassword(null);
+        return new LoginResponseDto(jwtToken, user);
+    }
 }

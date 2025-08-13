@@ -26,9 +26,8 @@ public class UserServiceImpl implements IUserService {
 
     private TenantDto mapToTenantDto(User user) {
         return new TenantDto(
-            user.getId(),
-            user.getBusinessName(),
-            user.getBusinessDescription()
-        );
+                user.getId(),
+                user.getBusinessName(),
+                user.getBusinessDescription());
     }
 }

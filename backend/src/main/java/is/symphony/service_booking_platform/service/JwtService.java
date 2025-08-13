@@ -19,7 +19,7 @@ public class JwtService {
 
     @Value("${application.security.jwt.secret-key}")
     private String secretKey;
-    private static final long JWT_EXPIRATION_MS = 1000 * 60 * 60 * 24; 
+    private static final long JWT_EXPIRATION_MS = 1000 * 60 * 60 * 24;
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);

@@ -17,6 +17,7 @@ import is.symphony.service_booking_platform.dto.AvailabilityDto;
 import is.symphony.service_booking_platform.dto.AvailabilityStatusDto;
 import is.symphony.service_booking_platform.service.interfaces.IAvailabilityService;
 import lombok.RequiredArgsConstructor;
+
 @RestController
 @RequestMapping("/api/availabilities")
 @RequiredArgsConstructor
@@ -30,7 +31,8 @@ public class AvailabilityController {
             @RequestParam String date) {
         try {
             LocalDate localDate = LocalDate.parse(date);
-            List<AvailabilityDto> availableSlots = availabilityService.findAvailableByServiceAndDate(serviceId, localDate);
+            List<AvailabilityDto> availableSlots = availabilityService.findAvailableByServiceAndDate(serviceId,
+                    localDate);
             return ResponseEntity.ok(availableSlots);
         } catch (DateTimeParseException e) {
             return ResponseEntity.badRequest().body("Invalid date format. Please use YYYY-MM-DD.");
@@ -43,7 +45,7 @@ public class AvailabilityController {
             @RequestParam String date) {
         try {
             LocalDate localDate = LocalDate.parse(date);
-            
+
             List<AvailabilityStatusDto> allSlots = availabilityService.findAllByServiceAndDate(serviceId, localDate);
             return ResponseEntity.ok(allSlots);
         } catch (DateTimeParseException e) {
@@ -56,8 +58,8 @@ public class AvailabilityController {
             @PathVariable("id") Long availabilityId,
             @RequestParam boolean isAvailable) {
         try {
-        availabilityService.toggleAvailability(availabilityId, isAvailable);
-        return ResponseEntity.ok().build();
+            availabilityService.toggleAvailability(availabilityId, isAvailable);
+            return ResponseEntity.ok().build();
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }

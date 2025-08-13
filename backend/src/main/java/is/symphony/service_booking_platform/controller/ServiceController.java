@@ -44,7 +44,7 @@ public class ServiceController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ServiceDto> getServiceById(@PathVariable Long id) {
-        ServiceDto service = serviceService.findById(id); 
+        ServiceDto service = serviceService.findById(id);
         return ResponseEntity.ok(service);
     }
 

@@ -32,22 +32,22 @@ public class ServiceServiceImpl implements IServiceService {
     public ServiceDto createService(Service service, Long tenantId) {
         User tenant = userRepository.findById(tenantId)
                 .orElseThrow(() -> new EntityNotFoundException("Tenant with ID " + tenantId + " not found."));
-        
+
         if (tenant.getRole() != Role.ROLE_TENANT) {
             throw new IllegalStateException("User must have ROLE_TENANT to create a service.");
         }
-        
+
         service.setProviderTenant(tenant);
         Service savedService = serviceRepository.save(service);
         createInitialAvailabilitiesForService(savedService);
 
         return mapToServiceDto(savedService);
     }
-    
+
     private void createInitialAvailabilitiesForService(Service service) {
         List<TimeTemplate> templates = timeTemplateRepository.findAll();
         LocalDate today = LocalDate.now();
-        
+
         for (int i = 0; i < 14; i++) {
             LocalDate currentDay = today.plusDays(i);
             for (TimeTemplate template : templates) {
@@ -70,7 +70,8 @@ public class ServiceServiceImpl implements IServiceService {
         if (!userRepository.existsById(tenantId)) {
             throw new EntityNotFoundException("Tenant with ID " + tenantId + " not found.");
         }
-        return serviceRepository.findByProviderTenantId(tenantId).stream().map(this::mapToServiceDto).collect(Collectors.toList());
+        return serviceRepository.findByProviderTenantId(tenantId).stream().map(this::mapToServiceDto)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -85,8 +86,7 @@ public class ServiceServiceImpl implements IServiceService {
         Long tenantId = (tenant != null) ? tenant.getId() : null;
 
         return new ServiceDto(
-            service.getId(), service.getName(), service.getCategory(), service.getDescription(),
-            service.getPrice(), service.getDurationInMinutes(), tenantName, tenantId
-        );
+                service.getId(), service.getName(), service.getCategory(), service.getDescription(),
+                service.getPrice(), service.getDurationInMinutes(), tenantName, tenantId);
     }
 }

@@ -14,7 +14,7 @@ public class Booking {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id", nullable = false)
     private User client;
-    
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "availability_id", referencedColumnName = "id", nullable = false)
     private Availability availability;

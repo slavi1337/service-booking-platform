@@ -25,7 +25,7 @@ public class Availability {
 
     @Column(nullable = false)
     private boolean isAvailable = true;
-    
+
     @Column(nullable = false)
     private boolean isBooked = false;
 }

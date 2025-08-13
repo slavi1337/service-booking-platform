@@ -30,7 +30,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/services").permitAll() 
+                        .requestMatchers(HttpMethod.GET, "/api/services").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/services/{id}").permitAll()
 
                         .requestMatchers(HttpMethod.GET, "/api/users/tenants").authenticated()
@@ -41,11 +41,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/services").hasRole("TENANT")
                         .requestMatchers(HttpMethod.GET, "/api/services/my-services").hasRole("TENANT")
                         .requestMatchers(HttpMethod.PATCH, "/api/availabilities/*/toggle").hasRole("TENANT")
+                        .requestMatchers(HttpMethod.DELETE, "/api/bookings/tenant/**").hasRole("TENANT")
 
                         .requestMatchers(HttpMethod.POST, "/api/bookings").hasRole("USER")
-                        
-                        .anyRequest().authenticated() 
-                )
+
+                        .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
