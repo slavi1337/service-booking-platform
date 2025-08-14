@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Container, Typography, TextField, Button, Box, Alert } from '@mui/material'
-import { jwtDecode } from 'jwt-decode'
 import { Controller, useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
 
@@ -28,10 +27,10 @@ const LoginPage = () => {
     setServerError(null)
     try {
       const loginResponse = await loginUser(data)
+      const { user, token } = loginResponse.data
 
-      const user = loginResponse.data.user
-      const token = loginResponse.data.token
       login(user, token)
+
       if (user.role === 'ROLE_TENANT') {
         navigate('/tenant-dashboard')
       } else {
@@ -43,78 +42,91 @@ const LoginPage = () => {
   }
 
   return (
-    <Container maxWidth="xs">
-      <Box sx={{ marginTop: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <Typography component="h1" variant="h5">
-          Prijavi se
-        </Typography>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '100vh',
+        width: '100vw',
+        px: 2, // Padding lijevo i desno za male ekrane
+      }}
+    >
+      <Container disableGutters maxWidth="xs">
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <Typography component="h1" variant="h5">
+            Login
+          </Typography>
 
-        {serverError ? (
-          <Alert severity="error" sx={{ mt: 2, width: '100%' }}>
-            {serverError}
-          </Alert>
-        ) : null}
+          {serverError ? (
+            <Alert severity="error" sx={{ mt: 2, width: '100%' }}>
+              {serverError}
+            </Alert>
+          ) : null}
 
-        <Box component="form" noValidate onSubmit={handleSubmit(onSubmit)} sx={{ mt: 1 }}>
-          <Controller
-            control={control}
-            name="email"
-            render={({ field }) => (
-              <TextField
-                {...field}
-                autoComplete="email"
-                autoFocus
-                error={!!errors.email}
-                fullWidth
-                helperText={errors.email ? errors.email.message : ''}
-                id="email"
-                label="Email Address"
-                margin="normal"
-                required
-              />
-            )}
-          />
-
-          <Controller
-            control={control}
-            name="password"
-            render={({ field }) => (
-              <TextField
-                {...field}
-                autoComplete="current-password"
-                error={!!errors.password}
-                fullWidth
-                helperText={errors.password ? errors.password.message : ''}
-                id="password"
-                label="Password"
-                margin="normal"
-                name="password"
-                required
-                type="password"
-              />
-            )}
-          />
-
-          <Button
-            disabled={isSubmitting}
-            fullWidth
-            sx={{ mt: 3, mb: 2 }}
-            type="submit"
-            variant="contained"
+          <Box
+            component="form"
+            noValidate
+            onSubmit={handleSubmit(onSubmit)}
+            sx={{ mt: 1, width: '100%' }}
           >
-            {isSubmitting ? 'Logging in...' : 'Log in'}
-          </Button>
-
-          <Box textAlign="center">
-            <Link style={{ textDecoration: 'none' }} to="/register">
-              <Typography color="primary" variant="body2">
-                Don't have an account? Sign up
-              </Typography>
-            </Link>
+            <Controller
+              control={control}
+              name="email"
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  autoComplete="email"
+                  autoFocus
+                  error={!!errors.email}
+                  fullWidth
+                  helperText={errors.email ? errors.email.message : ''}
+                  id="email"
+                  label="Email Address"
+                  margin="normal"
+                  required
+                />
+              )}
+            />
+            <Controller
+              control={control}
+              name="password"
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  autoComplete="current-password"
+                  error={!!errors.password}
+                  fullWidth
+                  helperText={errors.password ? errors.password.message : ''}
+                  id="password"
+                  label="Password"
+                  margin="normal"
+                  required
+                  type="password"
+                />
+              )}
+            />
+            <Button
+              disabled={isSubmitting}
+              fullWidth
+              sx={{ mt: 3, mb: 2 }}
+              type="submit"
+              variant="contained"
+            >
+              {isSubmitting ? 'Logging in...' : 'Log in'}
+            </Button>
+            <Box textAlign="center">
+              <Link style={{ textDecoration: 'none' }} to="/register">
+                <Typography color="primary" variant="body2">
+                  Don't have an account? Sign up
+                </Typography>
+              </Link>
+            </Box>
           </Box>
         </Box>
-      </Box>
-    </Container>
+      </Container>
+    </Box>
   )
 }
 
