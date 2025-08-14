@@ -63,3 +63,7 @@ export const getAllCategories = () => {
 export const getServicesByCategory = (categoryName) => {
   return apiClient.get(`/categories/${categoryName}/services`)
 }
+
+export const deleteService = (serviceId) => {
+  return apiClient.delete(`/services/${serviceId}`)
+}

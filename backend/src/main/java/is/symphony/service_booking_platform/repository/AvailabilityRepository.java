@@ -13,4 +13,6 @@ public interface AvailabilityRepository extends JpaRepository<Availability, Long
             Long serviceId, LocalDate date);
 
     List<Availability> findByServiceIdAndDateOrderByTemplateStartTimeAsc(Long serviceId, LocalDate date);
+
+    void deleteByServiceId(Long serviceId);
 }

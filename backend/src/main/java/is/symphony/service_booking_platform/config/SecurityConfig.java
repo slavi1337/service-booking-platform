@@ -42,6 +42,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/services/my-services").hasRole("TENANT")
                         .requestMatchers(HttpMethod.PATCH, "/api/availabilities/*/toggle").hasRole("TENANT")
                         .requestMatchers(HttpMethod.DELETE, "/api/bookings/tenant/**").hasRole("TENANT")
+                        .requestMatchers(HttpMethod.DELETE, "/api/services/*").hasRole("TENANT")
 
                         .requestMatchers(HttpMethod.POST, "/api/bookings").hasRole("USER")
 

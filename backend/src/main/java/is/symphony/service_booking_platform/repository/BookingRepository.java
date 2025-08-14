@@ -23,4 +23,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findByClientIdOrderByAvailabilityDateDescAvailabilityTemplateStartTimeDesc(Long clientId);
 
     List<Booking> findByClientId(Long clientId);
+
+    void deleteByAvailability_ServiceId(Long serviceId);
 }

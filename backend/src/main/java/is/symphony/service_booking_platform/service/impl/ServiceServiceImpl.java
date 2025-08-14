@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
+import is.symphony.service_booking_platform.repository.BookingRepository;
 
 @org.springframework.stereotype.Service
 @RequiredArgsConstructor
@@ -28,6 +29,7 @@ public class ServiceServiceImpl implements IServiceService {
     private final UserRepository userRepository;
     private final AvailabilityRepository availabilityRepository;
     private final TimeTemplateRepository timeTemplateRepository;
+    private final BookingRepository bookingRepository;
 
     @Override
     @Transactional
@@ -92,7 +94,7 @@ public class ServiceServiceImpl implements IServiceService {
                 service.getPrice(), service.getDurationInMinutes(), tenantName, tenantId);
     }
 
-       @Override
+    @Override
     public List<CategoryDto> findAllDistinctCategories() {
         return serviceRepository.findDistinctCategories().stream()
                 .map(CategoryDto::new)
@@ -106,7 +108,6 @@ public class ServiceServiceImpl implements IServiceService {
                 .collect(Collectors.toList());
     }
 
-    
     private ServiceCardDto mapToServiceCardDto(Service service) {
         User tenant = service.getProviderTenant();
         String tenantName = tenant.getBusinessName() != null && !tenant.getBusinessName().isEmpty()
@@ -118,7 +119,22 @@ public class ServiceServiceImpl implements IServiceService {
                 service.getName(),
                 tenantName,
                 service.getPrice(),
-                service.getDurationInMinutes()
-        );
+                service.getDurationInMinutes());
+    }
+
+    @Override
+    @Transactional
+    public void deleteService(Long serviceId, User tenant) {
+        Service service = serviceRepository.findById(serviceId)
+                .orElseThrow(() -> new EntityNotFoundException("Service with ID " + serviceId + " not found."));
+
+        if (!service.getProviderTenant().getId().equals(tenant.getId())) {
+            throw new SecurityException("Tenant does not have permission to delete this service.");
+        }
+
+        bookingRepository.deleteByAvailability_ServiceId(serviceId);
+        availabilityRepository.deleteByServiceId(serviceId);
+
+        serviceRepository.delete(service);
     }
 }

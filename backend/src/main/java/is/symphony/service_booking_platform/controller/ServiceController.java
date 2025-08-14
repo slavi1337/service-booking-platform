@@ -53,4 +53,19 @@ public class ServiceController {
         List<ServiceDto> services = serviceService.findServicesByTenant(tenantId);
         return ResponseEntity.ok(services);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteService(
+            @PathVariable("id") Long serviceId,
+            Authentication authentication) {
+        try {
+            User loggedInTenant = (User) authentication.getPrincipal();
+            serviceService.deleteService(serviceId, loggedInTenant);
+            return ResponseEntity.noContent().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+    }
 }
