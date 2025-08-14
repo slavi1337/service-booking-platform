@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 import {
   Box,
   Typography,
@@ -11,7 +12,7 @@ import {
   ListItemButton,
   IconButton
 } from '@mui/material'
-import { Link as RouterLink } from 'react-router-dom'
+import { Link as RouterLink, useNavigate } from 'react-router-dom'
 
 import { getMyServices, deleteService } from '../api'
 
@@ -19,6 +20,7 @@ const MyServicesList = () => {
   const [services, setServices] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchMyServices = async () => {
@@ -48,6 +50,10 @@ const MyServicesList = () => {
     }
   };
 
+  const handleEdit = (serviceId) => {
+    navigate(`/edit-service/${serviceId}`);
+  };
+
   if (loading) return <CircularProgress />
   if (error) return <Alert severity="error">{error}</Alert>
 
@@ -65,9 +71,14 @@ const MyServicesList = () => {
             <ListItem
               key={service.id}
               secondaryAction={
-                <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(service.id, service.name)}>
-                  <DeleteIcon />
-                </IconButton>
+                <Box>
+                  <IconButton edge="end" aria-label="edit" onClick={() => handleEdit(service.id)} sx={{ mr: 1 }}>
+                    <EditIcon />
+                  </IconButton>
+                  <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(service.id, service.name)}>
+                    <DeleteIcon />
+                  </IconButton>
+                </Box>
               }
               disablePadding
             >

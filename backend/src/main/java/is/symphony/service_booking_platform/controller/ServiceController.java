@@ -1,6 +1,7 @@
 package is.symphony.service_booking_platform.controller;
 
 import is.symphony.service_booking_platform.dto.ServiceDto;
+import is.symphony.service_booking_platform.dto.request.ServiceUpdateRequest;
 import is.symphony.service_booking_platform.model.Service;
 import is.symphony.service_booking_platform.model.User;
 import is.symphony.service_booking_platform.service.interfaces.IServiceService;
@@ -52,6 +53,22 @@ public class ServiceController {
     public ResponseEntity<List<ServiceDto>> getServicesByTenant(@PathVariable Long tenantId) {
         List<ServiceDto> services = serviceService.findServicesByTenant(tenantId);
         return ResponseEntity.ok(services);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateService(
+            @PathVariable("id") Long serviceId,
+            @RequestBody ServiceUpdateRequest request,
+            Authentication authentication) {
+        try {
+            User loggedInTenant = (User) authentication.getPrincipal();
+            ServiceDto updatedService = serviceService.updateService(serviceId, request, loggedInTenant);
+            return ResponseEntity.ok(updatedService);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        }
     }
 
     @DeleteMapping("/{id}")

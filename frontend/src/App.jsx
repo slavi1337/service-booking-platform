@@ -8,7 +8,7 @@ import ServiceDetailsPage from './pages/ServiceDetailsPage'
 import TenantDashboard from './pages/TenantDashboard'
 import TenantServicesPage from './pages/TenantServicesPage'
 import UserDashboard from './pages/UserDashboard'
-
+import EditServicePage from './pages/EditServicePage'
 const App = () => {
   return (
     <BrowserRouter>
@@ -24,6 +24,7 @@ const App = () => {
         <Route element={<ServiceDetailsPage />} path="/services/:serviceId" />
 
         <Route element={<MyBookingsPage />} path="/my-bookings" />
+        <Route element={<EditServicePage />} path="/edit-service/:serviceId" />
       </Routes>
     </BrowserRouter>
   )

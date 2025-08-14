@@ -14,6 +14,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -26,22 +27,24 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
+
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/services").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/services/{id}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/services", "/api/services/*").permitAll()
 
                         .requestMatchers(HttpMethod.GET, "/api/users/tenants").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/services/tenant/{tenantId}").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/services/tenant/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/availabilities/service/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/bookings/{id}/details").authenticated()
 
                         .requestMatchers(HttpMethod.POST, "/api/services").hasRole("TENANT")
                         .requestMatchers(HttpMethod.GET, "/api/services/my-services").hasRole("TENANT")
-                        .requestMatchers(HttpMethod.PATCH, "/api/availabilities/*/toggle").hasRole("TENANT")
+                        .requestMatchers(HttpMethod.PATCH, "/api/availabilities/{id}/toggle").hasRole("TENANT")
                         .requestMatchers(HttpMethod.DELETE, "/api/bookings/tenant/**").hasRole("TENANT")
+                        .requestMatchers(HttpMethod.PUT, "/api/services/*").hasRole("TENANT")
                         .requestMatchers(HttpMethod.DELETE, "/api/services/*").hasRole("TENANT")
 
                         .requestMatchers(HttpMethod.POST, "/api/bookings").hasRole("USER")
@@ -57,9 +60,10 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PATCH", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
+        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "x-auth-token"));
+        configuration.setExposedHeaders(List.of("x-auth-token"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

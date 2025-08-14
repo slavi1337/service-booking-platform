@@ -9,13 +9,16 @@ import org.springframework.stereotype.Service;
 
 import is.symphony.service_booking_platform.dto.AvailabilityDto;
 import is.symphony.service_booking_platform.dto.AvailabilityStatusDto;
+import is.symphony.service_booking_platform.exception.BookingException;
+import is.symphony.service_booking_platform.exception.ResourceNotFoundException;
 import is.symphony.service_booking_platform.model.Availability;
 import is.symphony.service_booking_platform.model.Booking;
 import is.symphony.service_booking_platform.repository.AvailabilityRepository;
 import is.symphony.service_booking_platform.repository.BookingRepository;
 import is.symphony.service_booking_platform.service.interfaces.IAvailabilityService;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
+import is.symphony.service_booking_platform.model.User;
 
 @Service
 @RequiredArgsConstructor
@@ -34,13 +37,18 @@ public class AvailabilityServiceImpl implements IAvailabilityService {
     }
 
     @Override
-    public void toggleAvailability(Long availabilityId, boolean isAvailable) {
+    @Transactional
+    public void toggleAvailability(Long availabilityId, boolean isAvailable, User tenant) {
         Availability availability = availabilityRepository.findById(availabilityId)
                 .orElseThrow(
-                        () -> new EntityNotFoundException("Availability with ID " + availabilityId + " not found."));
+                        () -> new ResourceNotFoundException("Availability with ID " + availabilityId + " not found."));
+
+        if (!availability.getService().getProviderTenant().getId().equals(tenant.getId())) {
+            throw new SecurityException("You do not have permission to modify this time slot.");
+        }
 
         if (availability.isBooked()) {
-            throw new IllegalStateException("Cannot change availability of a booked time slot.");
+            throw new BookingException("Cannot change availability of a booked time slot.");
         }
 
         availability.setAvailable(isAvailable);

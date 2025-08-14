@@ -67,3 +67,7 @@ export const getServicesByCategory = (categoryName) => {
 export const deleteService = (serviceId) => {
   return apiClient.delete(`/services/${serviceId}`)
 }
+
+export const updateService = (serviceId, serviceData) => {
+  return apiClient.put(`/services/${serviceId}`, serviceData);
+}

@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -17,6 +16,8 @@ import is.symphony.service_booking_platform.dto.AvailabilityDto;
 import is.symphony.service_booking_platform.dto.AvailabilityStatusDto;
 import is.symphony.service_booking_platform.service.interfaces.IAvailabilityService;
 import lombok.RequiredArgsConstructor;
+import is.symphony.service_booking_platform.model.User;
+import org.springframework.security.core.Authentication;
 
 @RestController
 @RequestMapping("/api/availabilities")
@@ -56,12 +57,11 @@ public class AvailabilityController {
     @PatchMapping("/{id}/toggle")
     public ResponseEntity<Void> toggleAvailability(
             @PathVariable("id") Long availabilityId,
-            @RequestParam boolean isAvailable) {
-        try {
-            availabilityService.toggleAvailability(availabilityId, isAvailable);
-            return ResponseEntity.ok().build();
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        }
+            @RequestParam boolean isAvailable,
+            Authentication authentication) {
+
+        User loggedInTenant = (User) authentication.getPrincipal();
+        availabilityService.toggleAvailability(availabilityId, isAvailable, loggedInTenant);
+        return ResponseEntity.ok().build();
     }
 }

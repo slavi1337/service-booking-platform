@@ -3,6 +3,7 @@ package is.symphony.service_booking_platform.service.impl;
 import is.symphony.service_booking_platform.dto.CategoryDto;
 import is.symphony.service_booking_platform.dto.ServiceCardDto;
 import is.symphony.service_booking_platform.dto.ServiceDto;
+import is.symphony.service_booking_platform.dto.request.ServiceUpdateRequest;
 import is.symphony.service_booking_platform.model.Service;
 import is.symphony.service_booking_platform.model.User;
 import is.symphony.service_booking_platform.model.Availability;
@@ -136,5 +137,25 @@ public class ServiceServiceImpl implements IServiceService {
         availabilityRepository.deleteByServiceId(serviceId);
 
         serviceRepository.delete(service);
+    }
+
+    @Override
+    @Transactional
+    public ServiceDto updateService(Long serviceId, ServiceUpdateRequest request, User tenant) {
+        Service service = serviceRepository.findById(serviceId)
+                .orElseThrow(() -> new EntityNotFoundException("Service with ID " + serviceId + " not found."));
+
+        if (!service.getProviderTenant().getId().equals(tenant.getId())) {
+            throw new SecurityException("Tenant does not have permission to edit this service.");
+        }
+
+        service.setName(request.name());
+        service.setCategory(request.category());
+        service.setDescription(request.description());
+        service.setPrice(request.price());
+        service.setDurationInMinutes(request.durationInMinutes());
+
+        Service updatedService = serviceRepository.save(service);
+        return mapToServiceDto(updatedService);
     }
 }
