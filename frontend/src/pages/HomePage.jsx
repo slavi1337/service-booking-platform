@@ -15,13 +15,30 @@ const HomePage = () => {
   }
 
   return (
-    <Container maxWidth="sm">
-      <Box
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: '100vh',
+        width: '100vw',
+      }}
+    >
+      {user ? (
+        <Box sx={{ width: '100%', display: 'flex', justifyContent: 'flex-end', p: 2 }}>
+          <Button color="error" onClick={logout} variant="outlined">
+            Logout
+          </Button>
+        </Box>
+      ) : null}
+
+      <Container
+        maxWidth="sm"
         sx={{
-          marginTop: 8,
+          flexGrow: 1,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
+          justifyContent: 'center',
           textAlign: 'center',
         }}
       >
@@ -30,46 +47,41 @@ const HomePage = () => {
         </Typography>
 
         {user ? (
-          <Box sx={{ mt: 4 }} textAlign="center">
+          <Box sx={{ mt: 3 }}>
             <Typography variant="h6">
-              Logged in as: {user.businessName || user.firstName || user.email}
+              Logged in as:{' '}
+              {user.businessName || `${user.firstName} ${user.lastName}` || user.email}
             </Typography>
-            <Typography color="text.secondary" variant="body1">
+            <Typography color="text.secondary" sx={{ mb: 3 }} variant="body1">
               (Role: {user.role.replace('ROLE_', '')})
             </Typography>
 
-            <Link
-              style={{ marginTop: '16px', display: 'inline-block', textDecoration: 'none' }}
-              to={dashboardPath}
-            >
-              <Button variant="contained">Go to Dashboard</Button>
+            <Link style={{ textDecoration: 'none' }} to={dashboardPath}>
+              <Button size="large" sx={{ m: 1 }} variant="contained">
+                Go to Dashboard
+              </Button>
             </Link>
 
             {user.role === 'ROLE_USER' ? (
-              <Box sx={{ mt: 2 }}>
-                <Link style={{ textDecoration: 'none' }} to="/my-bookings">
-                  <Button color="secondary" variant="contained">
-                    My Reservations
-                  </Button>
-                </Link>
-              </Box>
+              <Link style={{ textDecoration: 'none' }} to="/my-bookings">
+                <Button color="secondary" size="large" sx={{ m: 1 }} variant="contained">
+                  My Reservations
+                </Button>
+              </Link>
             ) : null}
-
-            <br />
-
-            <Button onClick={logout} sx={{ mt: 2 }} variant="outlined">
-              Logout
-            </Button>
           </Box>
         ) : (
           <Box sx={{ mt: 4 }}>
+            <Typography sx={{ mb: 2 }} variant="body1">
+              Please login to continue.
+            </Typography>
             <Button onClick={() => navigate('/login')} size="large" variant="contained">
               Login
             </Button>
           </Box>
         )}
-      </Box>
-    </Container>
+      </Container>
+    </Box>
   )
 }
 
