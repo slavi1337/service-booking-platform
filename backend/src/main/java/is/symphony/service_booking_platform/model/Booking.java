@@ -18,4 +18,7 @@ public class Booking {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "availability_id", referencedColumnName = "id", nullable = false)
     private Availability availability;
+
+    @Column(nullable = false)
+    private boolean reminderSent = false;
 }

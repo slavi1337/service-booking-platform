@@ -88,4 +88,37 @@ public class EmailServiceImpl implements IEmailService {
             System.err.println("Error sending booking confirmation email: " + e.getMessage());
         }
     }
+
+    @Override
+    @Async
+    public void sendBookingReminderEmail(Booking booking) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
+            message.setTo(booking.getClient().getEmail());
+            message.setSubject("Reminder: Your Upcoming Appointment");
+
+            LocalDateTime dateTime = LocalDateTime.of(
+                    booking.getAvailability().getDate(),
+                    booking.getAvailability().getTemplate().getStartTime());
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+
+            String text = String.format(
+                    "Dear %s,\n\n" +
+                            "This is a friendly reminder for your upcoming appointment for the service '%s' today at %s.\n\n"
+                            +
+                            "Provider: %s\n\n" +
+                            "We look forward to seeing you soon!",
+                    booking.getClient().getFirstName(),
+                    booking.getAvailability().getService().getName(),
+                    dateTime.format(formatter),
+                    booking.getAvailability().getService().getProviderTenant().getBusinessName());
+            message.setText(text);
+
+            mailSender.send(message);
+            System.out.println("Booking reminder email sent to: " + booking.getClient().getEmail());
+        } catch (Exception e) {
+            System.err.println("Error sending booking reminder email: " + e.getMessage());
+        }
+    }
 }

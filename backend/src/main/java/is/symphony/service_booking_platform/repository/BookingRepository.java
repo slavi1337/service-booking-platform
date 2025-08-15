@@ -1,6 +1,7 @@
 package is.symphony.service_booking_platform.repository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,4 +26,12 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findByClientId(Long clientId);
 
     void deleteByAvailability_ServiceId(Long serviceId);
+
+    @Query("SELECT b FROM Booking b " +
+            "JOIN b.availability a " +
+            "WHERE a.isBooked = true AND b.reminderSent = false AND " +
+            "FUNCTION('TIMESTAMP', a.date, a.template.startTime) BETWEEN :from AND :to")
+    List<Booking> findUpcomingBookingsForReminder(
+            @Param("from") LocalDateTime from,
+            @Param("to") LocalDateTime to);
 }
