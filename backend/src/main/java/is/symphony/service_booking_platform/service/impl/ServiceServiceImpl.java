@@ -53,7 +53,7 @@ public class ServiceServiceImpl implements IServiceService {
         List<TimeTemplate> templates = timeTemplateRepository.findAll();
         LocalDate today = LocalDate.now();
 
-        for (int i = 0; i < 14; i++) {
+        for (int i = 0; i < 7; i++) {
             LocalDate currentDay = today.plusDays(i);
             for (TimeTemplate template : templates) {
                 Availability availability = new Availability();

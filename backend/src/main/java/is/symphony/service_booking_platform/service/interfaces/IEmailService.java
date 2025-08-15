@@ -1,5 +1,5 @@
 package is.symphony.service_booking_platform.service.interfaces;
 
 public interface IEmailService {
-    void sendRegistrationConfirmationEmail(String to, String name);
+    void sendVerificationEmail(String to, String name, String token);
 }

@@ -17,7 +17,6 @@ public class EmailServiceImpl implements IEmailService {
     @Value("${spring.mail.username}")
     private String fromEmail;
 
-    @Override
     @Async
     public void sendRegistrationConfirmationEmail(String to, String name) {
         try {
@@ -37,6 +36,32 @@ public class EmailServiceImpl implements IEmailService {
             System.out.println("Registration email successfully sent to: " + to);
         } catch (Exception e) {
             System.err.println("Error sending email to " + to + ": " + e.getMessage());
+        }
+    }
+
+    @Override
+    @Async
+    public void sendVerificationEmail(String to, String name, String token) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
+            message.setTo(to);
+            message.setSubject("Verify Your Email for Service Booking Platform");
+
+            String verificationUrl = "http://localhost:8080/api/auth/verify?token=" + token;
+
+            String text = String.format(
+                    "Hello %s,\n\n" +
+                            "Thank you for registering. Please click the link below to verify your email address:\n" +
+                            "%s\n\n" +
+                            "This link will expire in 24 hours.\n\n" +
+                            "Best regards,\nThe Service Booking Platform Team",
+                    name, verificationUrl);
+            message.setText(text);
+
+            mailSender.send(message);
+        } catch (Exception e) {
+            System.err.println("Error sending verification email to " + to + ": " + e.getMessage());
         }
     }
 }

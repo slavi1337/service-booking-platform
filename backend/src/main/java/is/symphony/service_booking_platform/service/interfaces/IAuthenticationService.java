@@ -8,4 +8,6 @@ public interface IAuthenticationService {
     AuthenticationResponse register(User user);
 
     LoginResponseDto authenticate(String email, String password);
+
+    String verifyUser(String token);
 }
