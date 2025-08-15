@@ -18,6 +18,7 @@ import is.symphony.service_booking_platform.repository.AvailabilityRepository;
 import is.symphony.service_booking_platform.repository.BookingRepository;
 import is.symphony.service_booking_platform.repository.UserRepository;
 import is.symphony.service_booking_platform.service.interfaces.IBookingService;
+import is.symphony.service_booking_platform.service.interfaces.IEmailService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
@@ -28,6 +29,7 @@ public class BookingServiceImpl implements IBookingService {
     private final BookingRepository bookingRepository;
     private final AvailabilityRepository availabilityRepository;
     private final UserRepository userRepository;
+    private final IEmailService emailService;
 
     public BookingDetailsDto findBookingDetailsById(Long bookingId) {
         Booking booking = bookingRepository.findById(bookingId)
@@ -82,7 +84,10 @@ public class BookingServiceImpl implements IBookingService {
         Booking newBooking = new Booking();
         newBooking.setClient(client);
         newBooking.setAvailability(availability);
-        return bookingRepository.save(newBooking);
+
+        Booking savedBooking = bookingRepository.save(newBooking);
+        emailService.sendBookingConfirmationEmail(savedBooking);
+        return savedBooking;
     }
 
     @Override
