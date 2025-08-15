@@ -91,7 +91,7 @@ const LoginPage = () => {
             alignItems: 'center',
           }}
         >
-          <Typography color="primary" component="h1" variant="h5">
+          <Typography color="rgba(88, 186, 216, 1)" component="h1" variant="h5">
             Login
           </Typography>
 
@@ -189,7 +189,7 @@ const LoginPage = () => {
             <Grid container justifyContent="center">
               <Grid item>
                 <Link style={{ textDecoration: 'none' }} to="/register">
-                  <Typography color="primary" variant="body2">
+                  <Typography color="rgba(88, 186, 216, 1)" variant="body2">
                     Do not have an account? Sign Up
                   </Typography>
                 </Link>
