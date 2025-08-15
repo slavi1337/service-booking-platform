@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Container, Typography, TextField, Button, Box, Alert } from '@mui/material'
+import { Typography, TextField, Button, Box, Alert, Paper, CssBaseline, Grid } from '@mui/material'
 import { Controller, useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
 
@@ -44,18 +44,54 @@ const LoginPage = () => {
   return (
     <Box
       sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
+        position: 'relative',
         minHeight: '100vh',
         width: '100vw',
-        px: 2, // Padding lijevo i desno za male ekrane
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundImage: 'url(/login.jpeg)',
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
       }}
     >
-      <Container disableGutters maxWidth="xs">
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <Typography component="h1" variant="h5">
+      <CssBaseline />
+
+      <Box
+        sx={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.3)',
+        }}
+      />
+
+      <Paper
+        elevation={8}
+        sx={{
+          position: 'relative',
+          zIndex: 1,
+          p: 4,
+          borderRadius: 2,
+          width: '100%',
+          maxWidth: '400px',
+
+          backgroundImage: 'url(/login-background.jpeg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <Typography color="primary" component="h1" variant="h5">
             Login
           </Typography>
 
@@ -86,6 +122,23 @@ const LoginPage = () => {
                   label="Email Address"
                   margin="normal"
                   required
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': {
+                        borderColor: 'rgba(88, 186, 216, 1)',
+                      },
+                      '&:hover fieldset': {
+                        borderColor: 'rgba(88, 186, 216, 1)',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: 'rgba(88, 186, 216, 1)',
+                      },
+                      '& input': { color: 'rgba(88, 186, 216, 1)' },
+                    },
+                    '& label': {
+                      color: 'rgba(88, 186, 216, 1)',
+                    },
+                  }}
                 />
               )}
             />
@@ -103,6 +156,23 @@ const LoginPage = () => {
                   label="Password"
                   margin="normal"
                   required
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': {
+                        borderColor: 'rgba(88, 186, 216, 1)',
+                      },
+                      '&:hover fieldset': {
+                        borderColor: 'rgba(88, 186, 216, 1)',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: 'rgba(88, 186, 216, 1)',
+                      },
+                      '& input': { color: 'rgba(88, 186, 216, 1)' },
+                    },
+                    '& label': {
+                      color: 'rgba(88, 186, 216, 1)',
+                    },
+                  }}
                   type="password"
                 />
               )}
@@ -116,18 +186,19 @@ const LoginPage = () => {
             >
               {isSubmitting ? 'Logging in...' : 'Log in'}
             </Button>
-            <Box textAlign="center">
-              <Link style={{ textDecoration: 'none' }} to="/register">
-                <Typography color="primary" variant="body2">
-                  Don't have an account? Sign up
-                </Typography>
-              </Link>
-            </Box>
+            <Grid container justifyContent="center">
+              <Grid item>
+                <Link style={{ textDecoration: 'none' }} to="/register">
+                  <Typography color="primary" variant="body2">
+                    Do not have an account? Sign Up
+                  </Typography>
+                </Link>
+              </Grid>
+            </Grid>
           </Box>
         </Box>
-      </Container>
+      </Paper>
     </Box>
   )
 }
-
 export default LoginPage
