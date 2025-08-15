@@ -9,6 +9,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import is.symphony.service_booking_platform.service.interfaces.IAuthenticationService;
+import is.symphony.service_booking_platform.service.interfaces.IEmailService;
+
 import org.springframework.stereotype.Service;
 import is.symphony.service_booking_platform.service.JwtService;
 
@@ -20,10 +22,13 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final IEmailService emailService;
 
     public AuthenticationResponse register(User request) {
         request.setPassword(passwordEncoder.encode(request.getPassword()));
-        userRepository.save(request);
+        User savedUser = userRepository.save(request);
+        String recipientName = request.getFirstName() != null ? request.getFirstName() : request.getBusinessName();
+        emailService.sendRegistrationConfirmationEmail(savedUser.getEmail(), recipientName);
         String jwtToken = jwtService.generateToken(request);
         return new AuthenticationResponse(jwtToken);
     }
