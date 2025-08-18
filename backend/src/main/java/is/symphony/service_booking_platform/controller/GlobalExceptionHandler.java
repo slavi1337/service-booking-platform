@@ -7,6 +7,8 @@ import is.symphony.service_booking_platform.exception.ResourceNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -41,4 +43,14 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(new ErrorResponseDto(ex.getMessage()), HttpStatus.FORBIDDEN); // 403
     }
 
+    @ExceptionHandler({ DisabledException.class, LockedException.class })
+    public ResponseEntity<ErrorResponseDto> handleAuthExceptions(RuntimeException ex) {
+        String message = "Your account has an issue.";
+        if (ex instanceof DisabledException) {
+            message = "Account is not verified. Please check your email.";
+        } else if (ex instanceof LockedException) {
+            message = "Your account has been locked by an administrator.";
+        }
+        return new ResponseEntity<>(new ErrorResponseDto(message), HttpStatus.FORBIDDEN); // 403 Forbidden
+    }
 }
