@@ -71,3 +71,8 @@ export const deleteService = (serviceId) => {
 export const updateService = (serviceId, serviceData) => {
   return apiClient.put(`/services/${serviceId}`, serviceData);
 }
+
+export const getAllUsers = () => apiClient.get('/admin/users');
+export const lockUser = (userId) => apiClient.patch(`/admin/users/${userId}/lock`);
+export const unlockUser = (userId) => apiClient.patch(`/admin/users/${userId}/unlock`);
+export const deleteUser = (userId) => apiClient.delete(`/admin/users/${userId}`);
