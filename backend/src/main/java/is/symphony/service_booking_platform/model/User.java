@@ -38,6 +38,9 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private boolean enabled = false;
 
+    @Column(nullable = false)
+    private boolean accountLocked = false;
+
     private String verificationToken;
     private LocalDateTime tokenExpiryDate;
 
@@ -63,7 +66,7 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return !this.accountLocked;
     }
 
     @Override
