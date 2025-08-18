@@ -154,9 +154,9 @@ const UserDashboard = () => {
       </Box>
 
       {filter === 'tenants' ? (
-        <Grid container spacing={3}>
+        <Grid container direction="column" spacing={3}>
           {tenants.map((tenant) => (
-            <Grid item key={tenant.id} md={4} sm={6} xs={12}>
+            <Grid item key={tenant.id} xs={12}>
               <Card>
                 <CardActionArea component={RouterLink} to={`/tenants/${tenant.id}/services`}>
                   <CardContent>
