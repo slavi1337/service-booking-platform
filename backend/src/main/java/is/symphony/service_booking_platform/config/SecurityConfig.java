@@ -33,7 +33,12 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/services", "/api/services/*").permitAll()
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/services",
+                                "/api/services/*",
+                                "/api/users/tenants",
+                                "/api/availabilities/service/**")
+                        .permitAll()
 
                         .requestMatchers(HttpMethod.GET, "/api/users/tenants").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/services/tenant/**").authenticated()
@@ -48,6 +53,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/services/*").hasRole("TENANT")
 
                         .requestMatchers(HttpMethod.POST, "/api/bookings").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/api/bookings/my-bookings").hasRole("USER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/bookings/*").hasRole("USER")
+
+                        .requestMatchers("/api/users/all").hasRole("ADMIN")
 
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

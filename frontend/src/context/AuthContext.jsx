@@ -1,38 +1,57 @@
-import React, { createContext, useState, useContext, useEffect } from 'react'
+import React, { createContext, useState, useContext, useEffect } from 'react';
 
-const AuthContext = createContext(null)
+const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
     try {
-      const storedUser = localStorage.getItem('user')
-      return storedUser ? JSON.parse(storedUser) : null
+      const storedUser = localStorage.getItem('user');
+      return storedUser ? JSON.parse(storedUser) : null;
     } catch (error) {
-      return null
+      console.error("Failed to parse user from localStorage", error);
+      return null;
     }
-  })
+  });
 
-  const [token, setToken] = useState(() => localStorage.getItem('token'))
+  const [token, setToken] = useState(() => localStorage.getItem('token'));
 
   const login = (userData, tokenData) => {
-    localStorage.setItem('user', JSON.stringify(userData))
-    localStorage.setItem('token', tokenData)
-    setUser(userData)
-    setToken(tokenData)
-  }
+    localStorage.setItem('user', JSON.stringify(userData));
+    localStorage.setItem('token', tokenData);
+
+    setUser(userData);
+    setToken(tokenData);
+  };
 
   const logout = () => {
-    localStorage.removeItem('user')
-    localStorage.removeItem('token')
-    setUser(null)
-    setToken(null)
-  }
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
 
-  const value = { user, token, login, logout }
+    setUser(null);
+    setToken(null);
+  };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
-}
+  useEffect(() => {
+    const handleStorageChange = () => {
+      try {
+        const storedUser = localStorage.getItem('user');
+        const storedToken = localStorage.getItem('token');
+        setUser(storedUser ? JSON.parse(storedUser) : null);
+        setToken(storedToken);
+      } catch (error) {
+        logout();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
+  const value = { user, token, login, logout };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
 
 export const useAuth = () => {
-  return useContext(AuthContext)
-}
+  return useContext(AuthContext);
+};

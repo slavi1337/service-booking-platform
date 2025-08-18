@@ -4,6 +4,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Typography, TextField, Button, Box, Alert, Paper, CssBaseline, Grid } from '@mui/material'
 import { Controller, useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
+import { jwtDecode } from "jwt-decode";
+
 
 import { loginSchema } from './loginSchema'
 import { loginUser } from '../../api'
@@ -26,18 +28,23 @@ const LoginPage = () => {
   const onSubmit = async (data) => {
     setServerError(null)
     try {
-      const loginResponse = await loginUser(data)
-      const { user, token } = loginResponse.data
+      const response = await loginUser(data);
 
-      login(user, token)
+      const user = response.data.user;
+      const token = response.data.token;
+
+      login(user, token);
 
       if (user.role === 'ROLE_TENANT') {
-        navigate('/tenant-dashboard')
-      } else {
-        navigate('/dashboard')
+        navigate('/tenant-dashboard');
+      } else if (user.role === 'ROLE_ADMIN') {
+        navigate('/admin-dashboard');
+      }
+      else {
+        navigate('/dashboard');
       }
     } catch (err) {
-      setServerError('Wrong email or password. Please try again.')
+      setServerError('Wrong email or password. Please try again.');
     }
   }
 

@@ -10,11 +10,19 @@ import CssBaseline from '@mui/material/CssBaseline'
 
 import { AuthProvider } from './context/AuthContext'
 
+const theme = createTheme({
+  palette: {
+    mode: 'dark',
+  },
+})
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <CssBaseline />
-    <AuthProvider>
-      <App />
-    </AuthProvider>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    </ThemeProvider>
   </React.StrictMode>,
 )

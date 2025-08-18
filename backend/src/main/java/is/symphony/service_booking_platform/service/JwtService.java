@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import is.symphony.service_booking_platform.model.User;
 
 @Service
 public class JwtService {
@@ -31,9 +32,13 @@ public class JwtService {
     }
 
     public String generateToken(UserDetails userDetails) {
-        Map<String, Object> extraClaims = new HashMap<>();
-        extraClaims.put("role", userDetails.getAuthorities().iterator().next().getAuthority());
+        User user = (User) userDetails;
 
+        Map<String, Object> extraClaims = new HashMap<>();
+        extraClaims.put("role", user.getAuthorities().iterator().next().getAuthority());
+        extraClaims.put("id", user.getId());
+        extraClaims.put("firstName", user.getFirstName());
+        extraClaims.put("businessName", user.getBusinessName());
         return generateToken(extraClaims, userDetails);
     }
 

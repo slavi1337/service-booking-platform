@@ -9,22 +9,30 @@ import TenantDashboard from './pages/TenantDashboard'
 import TenantServicesPage from './pages/TenantServicesPage'
 import UserDashboard from './pages/UserDashboard'
 import EditServicePage from './pages/EditServicePage'
+import AdminDashboard from './pages/AdminDashboard'
+import MainLayout from './components/layout/MainLayout';
+
 const App = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route element={<HomePage />} path="/" />
-        <Route element={<LoginPage />} path="/login" />
-        <Route element={<RegisterPage />} path="/register" />
+        <Route path="/" element={<MainLayout />}>
 
-        <Route element={<UserDashboard />} path="/dashboard" />
-        <Route element={<TenantDashboard />} path="/tenant-dashboard" />
+          <Route element={<HomePage />} path="/" />
+          <Route element={<LoginPage />} path="/login" />
+          <Route element={<RegisterPage />} path="/register" />
 
-        <Route element={<TenantServicesPage />} path="/tenants/:tenantId/services" />
-        <Route element={<ServiceDetailsPage />} path="/services/:serviceId" />
+          <Route element={<UserDashboard />} path="/dashboard" />
+          <Route element={<TenantDashboard />} path="/tenant-dashboard" />
 
-        <Route element={<MyBookingsPage />} path="/my-bookings" />
-        <Route element={<EditServicePage />} path="/edit-service/:serviceId" />
+          <Route element={<TenantServicesPage />} path="/tenants/:tenantId/services" />
+          <Route element={<ServiceDetailsPage />} path="/services/:serviceId" />
+
+          <Route element={<MyBookingsPage />} path="/my-bookings" />
+          <Route element={<EditServicePage />} path="/edit-service/:serviceId" />
+
+          <Route element={<AdminDashboard />} path="/admin-dashboard" />
+        </Route>
       </Routes>
     </BrowserRouter>
   )
