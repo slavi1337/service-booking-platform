@@ -19,6 +19,7 @@ import {
   AccordionSummary,
   AccordionDetails,
   Button,
+  CssBaseline,
 } from '@mui/material'
 import { Link as RouterLink, useNavigate } from 'react-router-dom'
 
@@ -125,61 +126,79 @@ const UserDashboard = () => {
     }
   }
 
-  if (loading) return <CircularProgress sx={{ display: 'block', margin: 'auto', mt: 4 }} />
-  if (error) return <Alert severity="error">{error}</Alert>
-
   return (
-    <Container>
-      <Typography gutterBottom sx={{ my: 4 }} variant="h4">
-        Services
-      </Typography>
+    <Box
+      sx={{
+        minHeight: '100vh',
+        width: '100vw',
+        backgroundImage: 'url(/login.jpeg)',
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
+        py: 4,
+      }}
+    >
+      <CssBaseline />
 
-      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
-        <ToggleButtonGroup
-          aria-label="Filter by tenants or categories"
-          color="primary"
-          exclusive
-          onChange={handleFilterChange}
-          value={filter}
-        >
-          <ToggleButton value="tenants">
-            <PeopleIcon sx={{ mr: 1 }} />
-            By Tenants
-          </ToggleButton>
-          <ToggleButton value="categories">
-            <CategoryIcon sx={{ mr: 1 }} />
-            By Categories
-          </ToggleButton>
-        </ToggleButtonGroup>
-      </Box>
+      <Container>
+        <Typography gutterBottom sx={{ my: 4, textAlign: 'center' }} variant="h4">
+          Services
+        </Typography>
 
-      {filter === 'tenants' ? (
-        <Grid container direction="column" spacing={3}>
-          {tenants.map((tenant) => (
-            <Grid item key={tenant.id} xs={12}>
-              <Card>
-                <CardActionArea component={RouterLink} to={`/tenants/${tenant.id}/services`}>
-                  <CardContent>
-                    <Typography component="div" variant="h5">
-                      {tenant.businessName || `${tenant.firstName} ${tenant.lastName}`}
-                    </Typography>
-                    <Typography color="text.secondary" variant="body2">
-                      {tenant.businessDescription}
-                    </Typography>
-                  </CardContent>
-                </CardActionArea>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-      ) : (
-        <Box>
-          {categories.map((category) => (
-            <CategoryAccordion category={category} key={category.name} />
-          ))}
+        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
+          <ToggleButtonGroup
+            aria-label="Filter by tenants or categories"
+            color="primary"
+            exclusive
+            onChange={handleFilterChange}
+            value={filter}
+          >
+            <ToggleButton value="tenants">
+              <PeopleIcon sx={{ mr: 1 }} />
+              By Tenants
+            </ToggleButton>
+            <ToggleButton value="categories">
+              <CategoryIcon sx={{ mr: 1 }} />
+              By Categories
+            </ToggleButton>
+          </ToggleButtonGroup>
         </Box>
-      )}
-    </Container>
+
+        {loading ? <CircularProgress sx={{ display: 'block', margin: 'auto' }} /> : null}
+        {error ? <Alert severity="error">{error}</Alert> : null}
+
+        {!loading && !error ? (
+          filter === 'tenants' ? (
+            <Grid container direction="column" spacing={3}>
+              {tenants.map((tenant) => (
+                <Grid item key={tenant.id} xs={12}>
+                  <Card>
+                    <CardActionArea component={RouterLink} to={`/tenants/${tenant.id}/services`}>
+                      <CardContent>
+                        <Typography component="div" variant="h5">
+                          {tenant.businessName || `${tenant.firstName} ${tenant.lastName}`}
+                        </Typography>
+                        <Typography color="text.secondary" variant="body2">
+                          {tenant.businessDescription}
+                        </Typography>
+                      </CardContent>
+                    </CardActionArea>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          ) : (
+            <Box>
+              {categories.map((category) => (
+                <CategoryAccordion category={category} key={category.name} />
+              ))}
+            </Box>
+          )
+        ) : null}
+      </Container>
+    </Box>
   )
 }
+
 export default UserDashboard
