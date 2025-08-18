@@ -17,14 +17,13 @@ const HomePage = () => {
   const textColor = '#1976d2'
 
   return (
-    // GLAVNI OMOTAČ - IMA POZADINSKU SLIKU I CENTRIRA SADRŽAJ
     <Box
       sx={{
-        position: 'relative', // Potrebno za apsolutno pozicioniranje djeteta
+        position: 'relative',
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'center', // Samo vertikalno centriranje
-        alignItems: 'center', // Samo horizontalno centriranje
+        justifyContent: 'center',
+        alignItems: 'center',
         minHeight: '100vh',
         width: '100vw',
         backgroundImage: 'url(/home.JPG)',
@@ -35,13 +34,12 @@ const HomePage = () => {
     >
       <CssBaseline />
 
-      {/* DIO ZA LOGOUT - SADA APSOLUTNO POZICIONIRAN */}
       {user ? (
         <Box
           sx={{
             position: 'absolute',
-            top: 16, // 16px od vrha
-            right: 16, // 16px od desne ivice
+            top: 16,
+            right: 16,
           }}
         >
           <Button color="primary" onClick={logout} variant="contained">
@@ -50,11 +48,9 @@ const HomePage = () => {
         </Box>
       ) : null}
 
-      {/* GLAVNI SADRŽAJ - KONTEJNER JE DIREKTNO UNUTAR GLAVNOG BOX-a */}
       <Container
         maxWidth="sm"
         sx={{
-          // flexGrow nije više potreban jer roditelj radi svo centriranje
           textAlign: 'center',
         }}
       >
@@ -89,10 +85,10 @@ const HomePage = () => {
                   size="large"
                   sx={{
                     m: 1,
-                    backgroundColor: '#c69416ff', // <<< STANDARDNA ZLATNA BOJA
-                    color: 'white', // Tekst je bijele boje radi kontrasta
+                    backgroundColor: '#c69416ff',
+                    color: 'white',
                     '&:hover': {
-                      backgroundColor: '#CFB53B', // Malo drugačija nijansa kada se pređe mišem
+                      backgroundColor: '#CFB53B',
                     },
                   }}
                   variant="contained"
