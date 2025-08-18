@@ -56,7 +56,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/bookings/my-bookings").hasRole("USER")
                         .requestMatchers(HttpMethod.DELETE, "/api/bookings/*").hasRole("USER")
 
-                        .requestMatchers("/api/users/all").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
