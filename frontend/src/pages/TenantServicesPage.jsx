@@ -1,65 +1,94 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link as RouterLink } from 'react-router-dom';
-import { Container, Typography, List, ListItem, ListItemButton, ListItemText, CircularProgress, Alert, Breadcrumbs, Link } from '@mui/material';
-import { getServicesByTenant } from '../api';
+import React, { useState, useEffect } from 'react'
 
-const TenantServicesPage = () => {  
-    const { tenantId } = useParams();
-    const [services, setServices] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+import {
+  Container,
+  Typography,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  CircularProgress,
+  Alert,
+  Breadcrumbs,
+  Link,
+  CssBaseline,
+  Paper,
+  Box,
+} from '@mui/material'
+import { useParams, Link as RouterLink } from 'react-router-dom'
 
-    useEffect(() => {
-        const fetchServices = async () => {
-            try {
-                const response = await getServicesByTenant(tenantId);
-                setServices(response.data);
-            } catch (err) {
-                setError("Failed to fetch services for this provider.");
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchServices();
-    }, [tenantId]);
+import { getServicesByTenant } from '../api'
 
-    if (loading) return <CircularProgress sx={{ display: 'block', margin: 'auto', mt: 4 }} />;
-    if (error) return <Alert severity="error">{error}</Alert>;
+const TenantServicesPage = () => {
+  const { tenantId } = useParams()
+  const [services, setServices] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
-    return (
-        <Container>
-            <Breadcrumbs aria-label="breadcrumb" sx={{ my: 2 }}>
-                <Link component={RouterLink} underline="hover" color="inherit" to="/">
-                    Home
-                </Link>
-                <Link component={RouterLink} underline="hover" color="inherit" to="/dashboard">
-                    Providers
-                </Link>
-                <Typography color="text.primary">Services</Typography>
-            </Breadcrumbs>
-            
-            <Typography variant="h4" gutterBottom>
-                Available Services
-            </Typography>
-            
-            {services.length === 0 ? (
-                <Typography>This provider has no services available.</Typography>
-            ) : (
-                <List>
-                    {services.map(service => (
-                        <ListItem key={service.id} disablePadding>
-                            <ListItemButton component={RouterLink} to={`/services/${service.id}`}>
-                                <ListItemText 
-                                    primary={service.name} 
-                                    secondary={`${service.price}€ - ${service.durationInMinutes} min`} 
-                                />
-                            </ListItemButton>
-                        </ListItem>
-                    ))}
-                </List>
-            )}
-        </Container>
-    );
-};
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const response = await getServicesByTenant(tenantId)
+        setServices(response.data)
+      } catch (err) {
+        setError('Failed to fetch services for this provider.')
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchServices()
+  }, [tenantId])
 
-export default TenantServicesPage;
+  if (loading) return <CircularProgress sx={{ display: 'block', margin: 'auto', mt: 4 }} />
+  if (error) return <Alert severity="error">{error}</Alert>
+
+  return (
+    <Box
+      sx={{
+        minHeight: '100vh',
+        width: '100vw',
+        backgroundImage: 'url(/login.jpeg)',
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
+        py: 4,
+      }}
+    >
+      <Container>
+        <Breadcrumbs aria-label="breadcrumb" sx={{ my: 2 }}>
+          <Link color="inherit" component={RouterLink} to="/" underline="hover">
+            Home
+          </Link>
+          <Link color="inherit" component={RouterLink} to="/dashboard" underline="hover">
+            Providers
+          </Link>
+          <Typography color="text.primary">Services</Typography>
+        </Breadcrumbs>
+
+        <Typography gutterBottom variant="h4">
+          Available Services
+        </Typography>
+
+        {services.length === 0 ? (
+          <Typography>This provider has no services available.</Typography>
+        ) : (
+          <List>
+            {services.map((service) => (
+              <ListItem disablePadding key={service.id}>
+                <ListItemButton component={RouterLink} to={`/services/${service.id}`}>
+                  <ListItemText
+                    primary={service.name}
+                    secondary={`${service.price}€ - ${service.durationInMinutes} min`}
+                  />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        )}
+      </Container>
+    </Box>
+  )
+}
+
+export default TenantServicesPage
