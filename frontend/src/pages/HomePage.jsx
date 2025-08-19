@@ -58,7 +58,7 @@ const HomePage = () => {
           component="h1"
           gutterBottom
           sx={{ color: textColor, fontWeight: 'bold' }}
-          variant="h4"
+          variant="h3"
         >
           Welcome to Service Booking Platform
         </Typography>
@@ -75,7 +75,7 @@ const HomePage = () => {
 
             <Link style={{ textDecoration: 'none' }} to={dashboardPath}>
               <Button size="large" sx={{ m: 1 }} variant="contained">
-                Go to Dashboard
+                Dashboard
               </Button>
             </Link>
 
