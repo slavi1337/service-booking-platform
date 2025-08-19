@@ -104,74 +104,87 @@ const MyBookingsPage = () => {
   }
 
   return (
-    <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
-      <Typography component="h1" gutterBottom variant="h4">
-        My Bookings
-      </Typography>
-
-      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
-        <ToggleButtonGroup
-          aria-label="Filter bookings"
-          color="primary"
-          exclusive
-          onChange={handleFilterChange}
-          value={filter}
-        >
-          <ToggleButton aria-label="upcoming bookings" value="upcoming">
-            <EventAvailableIcon sx={{ mr: 1 }} />
-            Upcoming
-          </ToggleButton>
-          <ToggleButton aria-label="past bookings" value="past">
-            <EventBusyIcon sx={{ mr: 1 }} />
-            Past
-          </ToggleButton>
-        </ToggleButtonGroup>
-      </Box>
-
-      {bookingsToDisplay.length === 0 ? (
-        <Typography sx={{ textAlign: 'center', mt: 4 }}>
-          You do not have any {filter} bookings.
+    <Box
+      sx={{
+        minHeight: '100vh',
+        width: '100vw',
+        backgroundImage: 'url(/login.jpeg)',
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
+        py: 4,
+      }}
+    >
+      <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
+        <Typography component="h1" gutterBottom variant="h4">
+          My Bookings
         </Typography>
-      ) : (
-        <Grid container spacing={3}>
-          {bookingsToDisplay.map((booking) => (
-            <Grid item key={booking.bookingId} md={4} sm={6} xs={12}>
-              <Card sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-                <CardContent sx={{ flexGrow: 1 }}>
-                  <Typography component="h2" variant="h6">
-                    {booking.serviceName}
-                  </Typography>
-                  <Typography color="text.secondary">Provider: {booking.tenantName}</Typography>
-                  <Typography sx={{ mt: 1.5 }}>
-                    Date: {new Date(booking.slotDateTime).toLocaleDateString()}
-                  </Typography>
-                  <Typography>
-                    Time:{' '}
-                    {new Date(booking.slotDateTime).toLocaleTimeString([], {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </Typography>
-                </CardContent>
 
-                {filter === 'upcoming' ? (
-                  <Box sx={{ p: 2, pt: 0 }}>
-                    <Button
-                      color="error"
-                      fullWidth
-                      onClick={() => handleCancelBooking(booking.bookingId)}
-                      variant="outlined"
-                    >
-                      Cancel Booking
-                    </Button>
-                  </Box>
-                ) : null}
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-      )}
-    </Container>
+        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
+          <ToggleButtonGroup
+            aria-label="Filter bookings"
+            color="primary"
+            exclusive
+            onChange={handleFilterChange}
+            value={filter}
+          >
+            <ToggleButton aria-label="upcoming bookings" value="upcoming">
+              <EventAvailableIcon sx={{ mr: 1 }} />
+              Upcoming
+            </ToggleButton>
+            <ToggleButton aria-label="past bookings" value="past">
+              <EventBusyIcon sx={{ mr: 1 }} />
+              Past
+            </ToggleButton>
+          </ToggleButtonGroup>
+        </Box>
+
+        {bookingsToDisplay.length === 0 ? (
+          <Typography sx={{ textAlign: 'center', mt: 4 }}>
+            You do not have any {filter} bookings.
+          </Typography>
+        ) : (
+          <Grid container spacing={3}>
+            {bookingsToDisplay.map((booking) => (
+              <Grid item key={booking.bookingId} md={4} sm={6} xs={12}>
+                <Card sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                  <CardContent sx={{ flexGrow: 1 }}>
+                    <Typography component="h2" variant="h6">
+                      {booking.serviceName}
+                    </Typography>
+                    <Typography color="text.secondary">Provider: {booking.tenantName}</Typography>
+                    <Typography sx={{ mt: 1.5 }}>
+                      Date: {new Date(booking.slotDateTime).toLocaleDateString()}
+                    </Typography>
+                    <Typography>
+                      Time:{' '}
+                      {new Date(booking.slotDateTime).toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </Typography>
+                  </CardContent>
+
+                  {filter === 'upcoming' ? (
+                    <Box sx={{ p: 2, pt: 0 }}>
+                      <Button
+                        color="error"
+                        fullWidth
+                        onClick={() => handleCancelBooking(booking.bookingId)}
+                        variant="outlined"
+                      >
+                        Cancel Booking
+                      </Button>
+                    </Box>
+                  ) : null}
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        )}
+      </Container>
+    </Box>
   )
 }
 
