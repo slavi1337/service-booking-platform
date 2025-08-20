@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Typography, TextField, Button, Box, Alert, Paper, CssBaseline, Grid } from '@mui/material'
+import { Divider, Typography, TextField, Button, Box, Alert, Paper, CssBaseline, Grid } from '@mui/material'
+import GoogleIcon from '@mui/icons-material/Google';
 import { jwtDecode } from 'jwt-decode'
 import { Controller, useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
@@ -23,6 +24,7 @@ const LoginPage = () => {
   const [serverError, setServerError] = useState(null)
   const navigate = useNavigate()
   const { login } = useAuth()
+  const GOOGLE_AUTH_URL = "http://localhost:8080/oauth2/authorization/google";
 
   const onSubmit = async (data) => {
     setServerError(null)
@@ -191,6 +193,17 @@ const LoginPage = () => {
             >
               {isSubmitting ? 'Logging in...' : 'Log in'}
             </Button>
+            <Divider sx={{ my: 2 }}>OR</Divider>
+            <Button
+              fullWidth
+              variant="outlined"
+              startIcon={<GoogleIcon />}
+              href={GOOGLE_AUTH_URL}
+              sx={{ mb: 2 }}
+            >
+              Continue with Google
+            </Button>
+
             <Grid container justifyContent="center">
               <Grid item>
                 <Link style={{ textDecoration: 'none' }} to="/register">
