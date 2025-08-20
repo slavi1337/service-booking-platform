@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 
 const AuthContext = createContext(null);
 
@@ -15,21 +15,21 @@ export const AuthProvider = ({ children }) => {
 
   const [token, setToken] = useState(() => localStorage.getItem('token'));
 
-  const login = (userData, tokenData) => {
+  const login = useCallback((userData, tokenData) => {
     localStorage.setItem('user', JSON.stringify(userData));
     localStorage.setItem('token', tokenData);
 
     setUser(userData);
     setToken(tokenData);
-  };
+  }, []);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem('user');
     localStorage.removeItem('token');
 
     setUser(null);
     setToken(null);
-  };
+  }, []);
 
   useEffect(() => {
     const handleStorageChange = () => {
@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }) => {
 
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
+  }, [logout]);
 
   const value = { user, token, login, logout };
 
