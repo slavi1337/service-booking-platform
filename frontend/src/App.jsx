@@ -11,6 +11,7 @@ import UserDashboard from './pages/UserDashboard'
 import EditServicePage from './pages/EditServicePage'
 import AdminDashboard from './pages/AdminDashboard'
 import MainLayout from './components/layout/MainLayout';
+import OAuth2RedirectHandler from './pages/auth/OAuth2RedirectHandler'
 
 const App = () => {
   return (
@@ -32,6 +33,7 @@ const App = () => {
           <Route element={<EditServicePage />} path="/edit-service/:serviceId" />
 
           <Route element={<AdminDashboard />} path="/admin-dashboard" />
+          <Route element={<OAuth2RedirectHandler />} path="/oauth2/redirect" />
         </Route>
       </Routes>
     </BrowserRouter>
