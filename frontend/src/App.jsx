@@ -12,6 +12,7 @@ import EditServicePage from './pages/EditServicePage'
 import AdminDashboard from './pages/AdminDashboard'
 import MainLayout from './components/layout/MainLayout';
 import OAuth2RedirectHandler from './pages/auth/OAuth2RedirectHandler'
+import ManageCategories from './pages/admin/ManageCategories'
 
 const App = () => {
   return (
@@ -33,6 +34,7 @@ const App = () => {
           <Route element={<EditServicePage />} path="/edit-service/:serviceId" />
 
           <Route element={<AdminDashboard />} path="/admin-dashboard" />
+          <Route element={<ManageCategories />} path="/admin/categories" />
           <Route element={<OAuth2RedirectHandler />} path="/oauth2/redirect" />
         </Route>
       </Routes>
