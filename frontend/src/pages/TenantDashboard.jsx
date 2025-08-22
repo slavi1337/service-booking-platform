@@ -1,11 +1,32 @@
-import React from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import { Container, Typography, Box, Divider } from '@mui/material'
 import { useAuth } from '../context/AuthContext'
 import AddServiceForm from '../components/AddServiceForm'
 import MyServicesList from '../components/MyServicesList'
+import { getMyServices } from '../api';
 
 const TenantDashboard = () => {
   const { user } = useAuth()
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  const fetchServices = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await getMyServices();
+      setServices(response.data);
+      setError('');
+    } catch (err) {
+      setError('Failed to fetch services.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchServices();
+  }, [fetchServices]);
 
   return (
     <Box
@@ -32,12 +53,12 @@ const TenantDashboard = () => {
           <Typography variant="h5" gutterBottom>
             Add a New Service
           </Typography>
-          <AddServiceForm />
+          <AddServiceForm onServiceAdded={fetchServices} />
         </Box>
 
         <Divider sx={{ my: 4 }} />
 
-        <MyServicesList />
+        <MyServicesList services={services} loading={loading} error={error} onServiceDeleted={fetchServices} />
       </Container>
     </Box>
   )

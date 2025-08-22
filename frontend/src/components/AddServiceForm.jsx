@@ -22,7 +22,7 @@ const serviceSchema = z.object({
   ),
 })
 
-const AddServiceForm = () => {
+const AddServiceForm = ({ onServiceAdded }) => {
   const {
     handleSubmit,
     control,
@@ -32,7 +32,7 @@ const AddServiceForm = () => {
     resolver: zodResolver(serviceSchema),
     defaultValues: {
       name: '',
-      categoryId: null,
+      categoryId: '',
       description: '',
       price: '',
       durationInMinutes: '',
@@ -57,13 +57,14 @@ const AddServiceForm = () => {
     fetchCategories();
   }, []);
 
+
   const onSubmit = async (data) => {
-    setServerError(null)
-    setSuccessMessage('')
+    setServerError(null);
+    setSuccessMessage('');
 
     if (!user || user.role !== 'ROLE_TENANT' || !user.id) {
-      setServerError('You must be logged in as a Service Provider to add a service.')
-      return
+      setServerError('You must be logged in as a Service Provider to add a service.');
+      return;
     }
 
     try {
@@ -73,11 +74,16 @@ const AddServiceForm = () => {
       setSuccessMessage('Service created successfully!');
       reset();
 
+      if (onServiceAdded) {
+        onServiceAdded();
+      }
+
       setTimeout(() => setSuccessMessage(''), 3000);
+
     } catch (err) {
-      setServerError(err.response?.data?.message || 'Failed to create service.')
+      setServerError(err.response?.data?.message || 'Failed to create service.');
     }
-  }
+  };
 
   return (
     <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
