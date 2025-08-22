@@ -2,10 +2,8 @@ package is.symphony.service_booking_platform;
 
 import is.symphony.service_booking_platform.model.Availability;
 import is.symphony.service_booking_platform.model.Service;
-import is.symphony.service_booking_platform.model.TimeTemplate;
 import is.symphony.service_booking_platform.repository.AvailabilityRepository;
 import is.symphony.service_booking_platform.repository.ServiceRepository;
-import is.symphony.service_booking_platform.repository.TimeTemplateRepository;
 import is.symphony.service_booking_platform.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
@@ -25,20 +23,11 @@ public class DataLoader implements CommandLineRunner {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final TimeTemplateRepository timeTemplateRepository;
     private final ServiceRepository serviceRepository;
     private final AvailabilityRepository availabilityRepository;
 
     @Override
     public void run(String... args) throws Exception {
-        if (timeTemplateRepository.count() == 0) {
-            System.out.println("Creating default time templates...");
-            for (int hour = 8; hour <= 15; hour++) {
-                TimeTemplate template = new TimeTemplate();
-                template.setStartTime(LocalTime.of(hour, 0));
-                timeTemplateRepository.save(template);
-            }
-        }
 
         if (userRepository.findByEmail("admin@admin.com").isEmpty()) {
             System.out.println("Creating default admin account...");
@@ -57,37 +46,42 @@ public class DataLoader implements CommandLineRunner {
     }
 
     private void populateMissingAvailabilities() {
-        System.out.println("Checking and populating future availabilities for existing services...");
+        System.out.println("Checking and populating future availabilities...");
 
         List<Service> allServices = serviceRepository.findAll();
-        List<TimeTemplate> allTemplates = timeTemplateRepository.findAll();
         LocalDate today = LocalDate.now();
 
-        if (allServices.isEmpty()) {
-            System.out.println("No existing services found. Skipping availability population.");
-            return;
-        }
+        final LocalTime OPENING_TIME = LocalTime.of(8, 0);
+        final LocalTime CLOSING_TIME = LocalTime.of(16, 0);
 
         for (Service service : allServices) {
+            final int duration = service.getDurationInMinutes();
+            if (duration <= 0)
+                continue;
+
             for (int i = 0; i < 7; i++) {
                 LocalDate currentDate = today.plusDays(i);
-
                 boolean availabilitiesExist = availabilityRepository.existsByServiceIdAndDate(service.getId(),
                         currentDate);
 
                 if (!availabilitiesExist) {
                     System.out.println(
                             "Creating availabilities for service '" + service.getName() + "' on " + currentDate);
-                    for (TimeTemplate template : allTemplates) {
+                    LocalTime currentTime = OPENING_TIME;
+
+                    while (currentTime.plusMinutes(duration).isBefore(CLOSING_TIME)
+                            || currentTime.plusMinutes(duration).equals(CLOSING_TIME)) {
                         Availability availability = new Availability();
                         availability.setService(service);
-                        availability.setTemplate(template);
+                        availability.setStartTime(currentTime);
                         availability.setDate(currentDate);
                         availabilityRepository.save(availability);
+
+                        currentTime = currentTime.plusMinutes(duration);
                     }
                 }
             }
         }
-        System.out.println("Finished checking and populating availabilities.");
+        System.out.println("Finished checking availabilities.");
     }
 }
