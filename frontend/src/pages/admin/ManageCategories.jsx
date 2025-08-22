@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+
 import { TextField, Button, Box, Typography, List, ListItem, ListItemText } from '@mui/material';
+
 import { getAllCategories, createCategory } from '../../api';
 
 const ManageCategories = () => {
