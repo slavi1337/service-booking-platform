@@ -6,17 +6,16 @@ import is.symphony.service_booking_platform.dto.request.ServiceUpdateRequest;
 import is.symphony.service_booking_platform.model.Service;
 import is.symphony.service_booking_platform.model.User;
 import is.symphony.service_booking_platform.model.Availability;
-import is.symphony.service_booking_platform.model.TimeTemplate;
 import is.symphony.service_booking_platform.model.Role;
 import is.symphony.service_booking_platform.repository.ServiceRepository;
 import is.symphony.service_booking_platform.repository.UserRepository;
 import is.symphony.service_booking_platform.repository.AvailabilityRepository;
-import is.symphony.service_booking_platform.repository.TimeTemplateRepository;
 import is.symphony.service_booking_platform.service.interfaces.IServiceService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import is.symphony.service_booking_platform.repository.BookingRepository;
@@ -30,7 +29,6 @@ public class ServiceServiceImpl implements IServiceService {
     private final ServiceRepository serviceRepository;
     private final UserRepository userRepository;
     private final AvailabilityRepository availabilityRepository;
-    private final TimeTemplateRepository timeTemplateRepository;
     private final BookingRepository bookingRepository;
     private final CategoryRepository categoryRepository;
 
@@ -56,17 +54,29 @@ public class ServiceServiceImpl implements IServiceService {
     }
 
     private void createInitialAvailabilitiesForService(Service service) {
-        List<TimeTemplate> templates = timeTemplateRepository.findAll();
+        final LocalTime OPENING_TIME = LocalTime.of(8, 0);
+        final LocalTime CLOSING_TIME = LocalTime.of(16, 0);
+        final int duration = service.getDurationInMinutes();
+
+        if (duration <= 0) {
+            return;
+        }
+
         LocalDate today = LocalDate.now();
 
         for (int i = 0; i < 7; i++) {
             LocalDate currentDay = today.plusDays(i);
-            for (TimeTemplate template : templates) {
+            LocalTime currentTime = OPENING_TIME;
+
+            while (currentTime.plusMinutes(duration).isBefore(CLOSING_TIME)
+                    || currentTime.plusMinutes(duration).equals(CLOSING_TIME)) {
                 Availability availability = new Availability();
                 availability.setService(service);
-                availability.setTemplate(template);
+                availability.setStartTime(currentTime);
                 availability.setDate(currentDay);
                 availabilityRepository.save(availability);
+
+                currentTime = currentTime.plusMinutes(duration);
             }
         }
     }
@@ -156,7 +166,6 @@ public class ServiceServiceImpl implements IServiceService {
         service.setCategory(category);
         service.setDescription(request.description());
         service.setPrice(request.price());
-        service.setDurationInMinutes(request.durationInMinutes());
 
         Service updatedService = serviceRepository.save(service);
         return mapToServiceDto(updatedService);
