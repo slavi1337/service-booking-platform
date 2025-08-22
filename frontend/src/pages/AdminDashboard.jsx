@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, CircularProgress, Alert } from '@mui/material';
+
+import { Box, Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, CircularProgress, Alert } from '@mui/material';
+import { Link } from 'react-router-dom';
+
 import { getAllUsers, lockUser, unlockUser, deleteUser } from '../api';
 
 const AdminDashboard = () => {
@@ -22,7 +25,7 @@ const AdminDashboard = () => {
     const handleToggleLock = async (userId, isActive) => {
         try {
             isActive ? await lockUser(userId) : await unlockUser(userId);
-            fetchUsers(); // Osveži listu
+            fetchUsers();
         } catch (err) { alert("Action failed."); }
     };
 
@@ -62,7 +65,7 @@ const AdminDashboard = () => {
                                 <TableCell>{user.role.replace('ROLE_', '')}</TableCell>
                                 <TableCell>{user.isActive ? 'Active' : 'Locked'}</TableCell>
                                 <TableCell align="right">
-                                    <Button sx={{ mr: 1 }} onClick={() => handleToggleLock(user.id, user.isActive)}>
+                                    <Button onClick={() => handleToggleLock(user.id, user.isActive)} sx={{ mr: 1 }}>
                                         {user.isActive ? 'Lock' : 'Unlock'}
                                     </Button>
                                     <Button color="error" onClick={() => handleDelete(user.id)}>Delete</Button>
@@ -72,6 +75,18 @@ const AdminDashboard = () => {
                     </TableBody>
                 </Table>
             </TableContainer>
+            <Box sx={{ mt: 4 }}>
+                <Typography variant="h5" gutterBottom>
+                    Content Management
+                </Typography>
+                <Button
+                    component={Link}
+                    to="/admin/categories"
+                    variant="contained"
+                >
+                    Manage Categories
+                </Button>
+            </Box>
         </Container>
     );
 };

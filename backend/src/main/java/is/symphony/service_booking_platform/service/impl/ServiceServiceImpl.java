@@ -1,6 +1,5 @@
 package is.symphony.service_booking_platform.service.impl;
 
-import is.symphony.service_booking_platform.dto.CategoryDto;
 import is.symphony.service_booking_platform.dto.ServiceCardDto;
 import is.symphony.service_booking_platform.dto.ServiceDto;
 import is.symphony.service_booking_platform.dto.request.ServiceUpdateRequest;
@@ -21,6 +20,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 import is.symphony.service_booking_platform.repository.BookingRepository;
+import is.symphony.service_booking_platform.repository.CategoryRepository;
+import is.symphony.service_booking_platform.model.Category;
 
 @org.springframework.stereotype.Service
 @RequiredArgsConstructor
@@ -31,18 +32,23 @@ public class ServiceServiceImpl implements IServiceService {
     private final AvailabilityRepository availabilityRepository;
     private final TimeTemplateRepository timeTemplateRepository;
     private final BookingRepository bookingRepository;
+    private final CategoryRepository categoryRepository;
 
     @Override
     @Transactional
-    public ServiceDto createService(Service service, Long tenantId) {
+    public ServiceDto createService(Service service, Long tenantId, Long categoryId) {
         User tenant = userRepository.findById(tenantId)
                 .orElseThrow(() -> new EntityNotFoundException("Tenant with ID " + tenantId + " not found."));
+
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new EntityNotFoundException("Category with ID " + categoryId + " not found."));
 
         if (tenant.getRole() != Role.ROLE_TENANT) {
             throw new IllegalStateException("User must have ROLE_TENANT to create a service.");
         }
 
         service.setProviderTenant(tenant);
+        service.setCategory(category);
         Service savedService = serviceRepository.save(service);
         createInitialAvailabilitiesForService(savedService);
 
@@ -91,20 +97,13 @@ public class ServiceServiceImpl implements IServiceService {
         Long tenantId = (tenant != null) ? tenant.getId() : null;
 
         return new ServiceDto(
-                service.getId(), service.getName(), service.getCategory(), service.getDescription(),
+                service.getId(), service.getName(), service.getCategory().getName(), service.getDescription(),
                 service.getPrice(), service.getDurationInMinutes(), tenantName, tenantId);
     }
 
     @Override
-    public List<CategoryDto> findAllDistinctCategories() {
-        return serviceRepository.findDistinctCategories().stream()
-                .map(CategoryDto::new)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<ServiceCardDto> findServicesByCategory(String category) {
-        return serviceRepository.findByCategory(category).stream()
+    public List<ServiceCardDto> findServicesByCategory(String categoryName) {
+        return serviceRepository.findByCategory_Name(categoryName).stream()
                 .map(this::mapToServiceCardDto)
                 .collect(Collectors.toList());
     }
@@ -149,8 +148,12 @@ public class ServiceServiceImpl implements IServiceService {
             throw new SecurityException("Tenant does not have permission to edit this service.");
         }
 
+        Category category = categoryRepository.findById(request.categoryId())
+                .orElseThrow(
+                        () -> new EntityNotFoundException("Category with ID " + request.categoryId() + " not found."));
+
         service.setName(request.name());
-        service.setCategory(request.category());
+        service.setCategory(category);
         service.setDescription(request.description());
         service.setPrice(request.price());
         service.setDurationInMinutes(request.durationInMinutes());

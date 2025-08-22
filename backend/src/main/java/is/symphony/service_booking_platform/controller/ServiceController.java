@@ -1,6 +1,7 @@
 package is.symphony.service_booking_platform.controller;
 
 import is.symphony.service_booking_platform.dto.ServiceDto;
+import is.symphony.service_booking_platform.dto.request.ServiceCreateRequest;
 import is.symphony.service_booking_platform.dto.request.ServiceUpdateRequest;
 import is.symphony.service_booking_platform.model.Service;
 import is.symphony.service_booking_platform.model.User;
@@ -21,10 +22,18 @@ public class ServiceController {
     private final IServiceService serviceService;
 
     @PostMapping
-    public ResponseEntity<?> createService(@RequestBody Service service, Authentication authentication) {
+    public ResponseEntity<?> createService(@RequestBody ServiceCreateRequest request, Authentication authentication) {
         try {
             User loggedInUser = (User) authentication.getPrincipal();
-            ServiceDto createdService = serviceService.createService(service, loggedInUser.getId());
+            Service newService = new Service();
+            newService.setName(request.name());
+            newService.setDescription(request.description());
+            newService.setPrice(request.price());
+            newService.setDurationInMinutes(request.durationInMinutes());
+
+            ServiceDto createdService = serviceService.createService(newService, loggedInUser.getId(),
+                    request.categoryId());
+
             return new ResponseEntity<>(createdService, HttpStatus.CREATED);
         } catch (EntityNotFoundException | IllegalStateException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

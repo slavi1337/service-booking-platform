@@ -43,6 +43,9 @@ public class SecurityConfig {
                                                                 "/api/users/tenants",
                                                                 "/api/availabilities/service/**")
                                                 .permitAll()
+                                                .requestMatchers(HttpMethod.GET, "/api/categories",
+                                                                "/api/categories/*/services")
+                                                .permitAll()
 
                                                 .requestMatchers(HttpMethod.GET, "/api/users/tenants").authenticated()
                                                 .requestMatchers(HttpMethod.GET, "/api/services/tenant/**")
@@ -68,6 +71,7 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.DELETE, "/api/bookings/*").hasRole("USER")
 
                                                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                                                .requestMatchers(HttpMethod.POST, "/api/categories").hasRole("ADMIN")
 
                                                 .anyRequest().authenticated())
                                 .sessionManagement(session -> session

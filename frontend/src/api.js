@@ -24,8 +24,10 @@ export const registerUser = (formData) => {
   })
 }
 export const loginUser = (credentials) => apiClient.post('/auth/login', credentials)
-export const createService = (serviceData, tenantId) =>
-  apiClient.post(`/services?tenantId=${tenantId}`, serviceData)
+export const createService = (serviceData, tenantId, categoryId) => {
+  const data = { ...serviceData, categoryId: categoryId }
+  return apiClient.post(`/services?tenantId=${tenantId}`, data)
+}
 
 export const getAllTenants = () => apiClient.get('/users/tenants')
 export const getServicesByTenant = (tenantId) => apiClient.get(`/services/tenant/${tenantId}`)
@@ -79,3 +81,4 @@ export const getAllUsers = () => apiClient.get('/admin/users')
 export const lockUser = (userId) => apiClient.patch(`/admin/users/${userId}/lock`)
 export const unlockUser = (userId) => apiClient.patch(`/admin/users/${userId}/unlock`)
 export const deleteUser = (userId) => apiClient.delete(`/admin/users/${userId}`)
+export const createCategory = (categoryData) => apiClient.post('/categories', categoryData)
