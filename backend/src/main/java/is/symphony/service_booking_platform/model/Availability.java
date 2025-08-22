@@ -3,6 +3,7 @@ package is.symphony.service_booking_platform.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Data
 @Entity
@@ -16,9 +17,8 @@ public class Availability {
     @JoinColumn(name = "service_id", nullable = false)
     private Service service;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "template_id", nullable = false)
-    private TimeTemplate template;
+    @Column(nullable = false)
+    private LocalTime startTime;
 
     @Column(nullable = false)
     private LocalDate date;
