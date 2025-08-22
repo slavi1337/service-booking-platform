@@ -30,7 +30,7 @@ public class AvailabilityServiceImpl implements IAvailabilityService {
     @Override
     public List<AvailabilityDto> findAvailableByServiceAndDate(Long serviceId, LocalDate date) {
         return availabilityRepository
-                .findByServiceIdAndDateAndIsAvailableTrueAndIsBookedFalseOrderByTemplateStartTimeAsc(serviceId, date)
+                .findByServiceIdAndDateAndIsAvailableTrueAndIsBookedFalseOrderByStartTimeAsc(serviceId, date)
                 .stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
@@ -57,7 +57,7 @@ public class AvailabilityServiceImpl implements IAvailabilityService {
 
     @Override
     public List<AvailabilityStatusDto> findAllByServiceAndDate(Long serviceId, LocalDate date) {
-        return availabilityRepository.findByServiceIdAndDateOrderByTemplateStartTimeAsc(serviceId, date)
+        return availabilityRepository.findByServiceIdAndDateOrderByStartTimeAsc(serviceId, date)
                 .stream()
                 .map(this::mapToStatusDto)
                 .collect(Collectors.toList());
@@ -66,7 +66,7 @@ public class AvailabilityServiceImpl implements IAvailabilityService {
     private AvailabilityDto mapToDto(Availability availability) {
         LocalDateTime dateTime = LocalDateTime.of(
                 availability.getDate(),
-                availability.getTemplate().getStartTime());
+                availability.getStartTime());
 
         return new AvailabilityDto(availability.getId(), dateTime);
     }
@@ -74,7 +74,7 @@ public class AvailabilityServiceImpl implements IAvailabilityService {
     private AvailabilityStatusDto mapToStatusDto(Availability availability) {
         LocalDateTime dateTime = LocalDateTime.of(
                 availability.getDate(),
-                availability.getTemplate().getStartTime());
+                availability.getStartTime());
         Booking booking = bookingRepository.findByAvailabilityId(availability.getId()).orElse(null);
         Long bookingId = (booking != null) ? booking.getId() : null;
 

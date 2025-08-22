@@ -9,10 +9,10 @@ import is.symphony.service_booking_platform.model.Availability;
 
 public interface AvailabilityRepository extends JpaRepository<Availability, Long> {
 
-    List<Availability> findByServiceIdAndDateAndIsAvailableTrueAndIsBookedFalseOrderByTemplateStartTimeAsc(
+    List<Availability> findByServiceIdAndDateAndIsAvailableTrueAndIsBookedFalseOrderByStartTimeAsc(
             Long serviceId, LocalDate date);
 
-    List<Availability> findByServiceIdAndDateOrderByTemplateStartTimeAsc(Long serviceId, LocalDate date);
+    List<Availability> findByServiceIdAndDateOrderByStartTimeAsc(Long serviceId, LocalDate date);
 
     void deleteByServiceId(Long serviceId);
 

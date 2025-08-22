@@ -2,6 +2,7 @@ package is.symphony.service_booking_platform.service.impl;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -12,7 +13,6 @@ import is.symphony.service_booking_platform.dto.MyBookingDto;
 import is.symphony.service_booking_platform.model.Availability;
 import is.symphony.service_booking_platform.model.Booking;
 import is.symphony.service_booking_platform.model.Service;
-import is.symphony.service_booking_platform.model.TimeTemplate;
 import is.symphony.service_booking_platform.model.User;
 import is.symphony.service_booking_platform.repository.AvailabilityRepository;
 import is.symphony.service_booking_platform.repository.BookingRepository;
@@ -41,11 +41,12 @@ public class BookingServiceImpl implements IBookingService {
         User client = booking.getClient();
         Availability availability = booking.getAvailability();
         Service service = (availability != null) ? availability.getService() : null;
-        TimeTemplate template = (availability != null) ? availability.getTemplate() : null;
-        LocalDate date = (availability != null) ? availability.getDate() : null;
 
-        LocalDateTime slotDateTime = (date != null && template != null)
-                ? LocalDateTime.of(date, template.getStartTime())
+        LocalDate date = (availability != null) ? availability.getDate() : null;
+        LocalTime startTime = (availability != null) ? availability.getStartTime() : null;
+
+        LocalDateTime slotDateTime = (date != null && startTime != null)
+                ? LocalDateTime.of(date, startTime)
                 : null;
 
         return new BookingDetailsDto(
@@ -73,7 +74,7 @@ public class BookingServiceImpl implements IBookingService {
         }
 
         LocalDateTime slotDateTime = LocalDateTime.of(availability.getDate(),
-                availability.getTemplate().getStartTime());
+                availability.getStartTime());
         if (slotDateTime.isBefore(LocalDateTime.now())) {
             throw new IllegalStateException("Cannot book a time slot that has already passed.");
         }
@@ -106,7 +107,7 @@ public class BookingServiceImpl implements IBookingService {
 
         Availability availability = booking.getAvailability();
         LocalDateTime slotDateTime = LocalDateTime.of(availability.getDate(),
-                availability.getTemplate().getStartTime());
+                availability.getStartTime());
         if (slotDateTime.isBefore(LocalDateTime.now())) {
             throw new IllegalStateException("Cannot cancel a booking that has already passed");
         }
@@ -141,7 +142,7 @@ public class BookingServiceImpl implements IBookingService {
     @Override
     public List<MyBookingDto> findBookingsByClientId(Long clientId) {
         List<Booking> bookings = bookingRepository
-                .findByClientIdOrderByAvailabilityDateDescAvailabilityTemplateStartTimeDesc(clientId);
+                .findByClientIdOrderByAvailabilityDateDescAvailabilityStartTimeDesc(clientId);
 
         return bookings.stream()
                 .map(this::mapToMyBookingDto)
@@ -162,7 +163,7 @@ public class BookingServiceImpl implements IBookingService {
                 service.getName(),
                 tenantName,
                 availability.getDate(),
-                availability.getTemplate().getStartTime());
+                availability.getStartTime());
     }
 
     @Override

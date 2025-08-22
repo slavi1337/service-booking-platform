@@ -64,7 +64,7 @@ public class EmailServiceImpl implements IEmailService {
 
             LocalDateTime dateTime = LocalDateTime.of(
                     booking.getAvailability().getDate(),
-                    booking.getAvailability().getTemplate().getStartTime());
+                    booking.getAvailability().getStartTime());
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE, dd MMMM yyyy 'at' HH:mm");
 
             String text = String.format(
@@ -100,7 +100,7 @@ public class EmailServiceImpl implements IEmailService {
 
             LocalDateTime dateTime = LocalDateTime.of(
                     booking.getAvailability().getDate(),
-                    booking.getAvailability().getTemplate().getStartTime());
+                    booking.getAvailability().getStartTime());
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
 
             String text = String.format(
