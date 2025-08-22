@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import { useForm, Controller } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import {
   Container,
   Typography,
@@ -12,12 +12,16 @@ import {
   Alert,
   CircularProgress,
   Paper,
-} from '@mui/material'
-import { getServiceById, updateService } from '../api'
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from '@mui/material';
+import { getServiceById, updateService, getAllCategories } from '../api';
 
 const serviceSchema = z.object({
   name: z.string().min(2, 'Name is required.'),
-  category: z.string().min(2, 'Category is required.'),
+  categoryId: z.number({ required_error: 'Category is required.' }).positive('Please select a category.'),
   description: z.string().optional(),
   price: z.preprocess(
     (val) => parseFloat(String(val)),
@@ -30,11 +34,11 @@ const serviceSchema = z.object({
       .int()
       .positive('Duration must be a positive integer.'),
   ),
-})
+});
 
 const EditServicePage = () => {
-  const { serviceId } = useParams()
-  const navigate = useNavigate()
+  const { serviceId } = useParams();
+  const navigate = useNavigate();
 
   const {
     handleSubmit,
@@ -43,45 +47,71 @@ const EditServicePage = () => {
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(serviceSchema),
-  })
+    defaultValues: {
+      name: '',
+      categoryId: '',
+      description: '',
+      price: '',
+      durationInMinutes: '',
+    },
+  });
 
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const [successMessage, setSuccessMessage] = useState('')
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
-    const fetchServiceData = async () => {
+    const fetchData = async () => {
       try {
-        const response = await getServiceById(serviceId)
-        reset(response.data)
+        setLoading(true);
+        const [serviceResponse, categoriesResponse] = await Promise.all([
+          getServiceById(serviceId),
+          getAllCategories(),
+        ]);
+
+        const serviceData = serviceResponse.data;
+        const allCategories = categoriesResponse.data;
+        setCategories(allCategories);
+
+        const currentCategory = allCategories.find(cat => cat.name === serviceData.category);
+
+        reset({
+          name: serviceData.name,
+          categoryId: currentCategory ? currentCategory.id : '',
+          description: serviceData.description,
+          price: serviceData.price,
+          durationInMinutes: serviceData.durationInMinutes,
+        });
+
       } catch (err) {
-        setError('Failed to fetch service data.')
+        setError('Failed to fetch service data or categories.');
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
-    fetchServiceData()
-  }, [serviceId, reset])
+    };
+    fetchData();
+  }, [serviceId, reset]);
 
   const onSubmit = async (data) => {
-    setError(null)
-    setSuccessMessage('')
+    setError(null);
+    setSuccessMessage('');
     try {
-      await updateService(serviceId, data)
-      setSuccessMessage('Service updated successfully!')
-      setTimeout(() => navigate('/tenant-dashboard'), 1500) // Vrati se na dashboard nakon 1.5s
+      await updateService(serviceId, data);
+      setSuccessMessage('Service updated successfully!');
+      setTimeout(() => navigate('/tenant-dashboard'), 1500);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to update service.')
+      setError(err.response?.data?.message || 'Failed to update service.');
     }
-  }
+  };
 
-  if (loading) return <CircularProgress sx={{ display: 'block', margin: 'auto', mt: 4 }} />
+  if (loading) return <CircularProgress sx={{ display: 'block', margin: 'auto', mt: 4 }} />;
   if (error)
     return (
       <Alert severity="error" sx={{ m: 4 }}>
         {error}
       </Alert>
-    )
+    );
 
   return (
     <Box
@@ -125,22 +155,33 @@ const EditServicePage = () => {
                 />
               )}
             />
-            <Controller
-              name="category"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  label="Category"
-                  variant="outlined"
-                  margin="normal"
-                  fullWidth
-                  required
-                  error={!!errors.category}
-                  helperText={errors.category?.message}
-                />
+
+            <FormControl fullWidth margin="normal" error={!!errors.categoryId}>
+              <InputLabel id="category-select-label">Category</InputLabel>
+              <Controller
+                name="categoryId"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    labelId="category-select-label"
+                    label="Category"
+                  >
+                    {categories.map((category) => (
+                      <MenuItem key={category.id} value={category.id}>
+                        {category.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                )}
+              />
+              {errors.categoryId && (
+                <p style={{ color: '#d32f2f', fontSize: '0.75rem', margin: '3px 14px 0' }}>
+                  {errors.categoryId.message}
+                </p>
               )}
-            />
+            </FormControl>
+
             <Controller
               name="description"
               control={control}
@@ -204,7 +245,7 @@ const EditServicePage = () => {
         </Paper>
       </Container>
     </Box>
-  )
-}
+  );
+};
 
-export default EditServicePage
+export default EditServicePage;
