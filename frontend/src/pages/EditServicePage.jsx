@@ -226,10 +226,8 @@ const EditServicePage = () => {
                   variant="outlined"
                   margin="normal"
                   fullWidth
-                  required
-                  type="number"
-                  error={!!errors.durationInMinutes}
-                  helperText={errors.durationInMinutes?.message}
+                  disabled
+                  helperText="Duration cannot be changed after service creation."
                 />
               )}
             />
