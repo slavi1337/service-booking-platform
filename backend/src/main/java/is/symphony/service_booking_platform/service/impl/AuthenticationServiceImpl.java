@@ -1,13 +1,5 @@
 package is.symphony.service_booking_platform.service.impl;
 
-import is.symphony.service_booking_platform.dto.LoginResponseDto;
-import is.symphony.service_booking_platform.dto.auth.AuthenticationResponse;
-import is.symphony.service_booking_platform.exception.BookingException;
-import is.symphony.service_booking_platform.exception.ResourceNotFoundException;
-import is.symphony.service_booking_platform.model.User;
-import is.symphony.service_booking_platform.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
-
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -16,12 +8,20 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import is.symphony.service_booking_platform.dto.LoginResponseDto;
+import is.symphony.service_booking_platform.dto.auth.AuthenticationResponse;
+import is.symphony.service_booking_platform.exception.BookingException;
+import is.symphony.service_booking_platform.exception.ResourceNotFoundException;
+import is.symphony.service_booking_platform.model.User;
+import is.symphony.service_booking_platform.repository.UserRepository;
+import is.symphony.service_booking_platform.service.JwtService;
 import is.symphony.service_booking_platform.service.interfaces.IAuthenticationService;
 import is.symphony.service_booking_platform.service.interfaces.IEmailService;
-
-import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
-import is.symphony.service_booking_platform.service.JwtService;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -32,11 +32,17 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final IEmailService emailService;
+    private final FileStorageServiceImpl fileStorageService; 
 
     @Override
-    public AuthenticationResponse register(User request) {
+    public AuthenticationResponse register(User request, MultipartFile imageFile) {
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new BookingException("Email address is already in use.");
+        }
+         if (imageFile != null && !imageFile.isEmpty()) {
+            String fileName = fileStorageService.save(imageFile);
+            
+            request.setImage(fileName); 
         }
 
         request.setPassword(passwordEncoder.encode(request.getPassword()));

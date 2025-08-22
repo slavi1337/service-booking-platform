@@ -20,6 +20,7 @@ import {
   AccordionDetails,
   Button,
   CssBaseline,
+  CardMedia,
 } from '@mui/material'
 import { Link as RouterLink, useNavigate } from 'react-router-dom'
 
@@ -173,16 +174,38 @@ const UserDashboard = () => {
             <Grid container direction="column" spacing={3}>
               {tenants.map((tenant) => (
                 <Grid item key={tenant.id} xs={12}>
-                  <Card>
-                    <CardActionArea component={RouterLink} to={`/tenants/${tenant.id}/services`}>
-                      <CardContent>
-                        <Typography component="div" variant="h5">
-                          {tenant.businessName || `${tenant.firstName} ${tenant.lastName}`}
-                        </Typography>
-                        <Typography color="text.secondary" variant="body2">
-                          {tenant.businessDescription}
-                        </Typography>
-                      </CardContent>
+                  <Card sx={{ display: 'flex' }}>
+                    <CardActionArea
+                      component={RouterLink}
+                      sx={{ display: 'flex', justifyContent: 'flex-start' }}
+                      to={`/tenants/${tenant.id}/services`}
+                    >
+                      <CardMedia
+                        alt={tenant.businessName || `${tenant.firstName} ${tenant.lastName}`}
+                        component="img"
+                        image={
+                          tenant.image
+                            ? `http://localhost:8080/uploads/${tenant.image}`
+                            : 'https://via.placeholder.com/160?text=No+Image'
+                        }
+                        sx={{
+                          width: 160,
+                          height: 160,
+                          objectFit: 'cover',
+                          display: { xs: 'none', sm: 'block' },
+                        }}
+                      />
+
+                      <Box sx={{ flex: 1 }}>
+                        <CardContent>
+                          <Typography component="div" variant="h5">
+                            {tenant.businessName || `${tenant.firstName} ${tenant.lastName}`}
+                          </Typography>
+                          <Typography color="text.secondary" variant="body2">
+                            {tenant.businessDescription}
+                          </Typography>
+                        </CardContent>
+                      </Box>
                     </CardActionArea>
                   </Card>
                 </Grid>

@@ -1,5 +1,15 @@
 package is.symphony.service_booking_platform.controller;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
 import is.symphony.service_booking_platform.dto.LoginResponseDto;
 import is.symphony.service_booking_platform.dto.auth.AuthenticationResponse;
 import is.symphony.service_booking_platform.dto.request.LoginRequest;
@@ -8,13 +18,6 @@ import is.symphony.service_booking_platform.exception.ResourceNotFoundException;
 import is.symphony.service_booking_platform.model.User;
 import is.symphony.service_booking_platform.service.interfaces.IAuthenticationService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -23,9 +26,12 @@ public class AuthenticationController {
 
     private final IAuthenticationService authService;
 
-    @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponse> register(@RequestBody User user) {
-        return ResponseEntity.ok(authService.register(user));
+    @PostMapping(value = "/register", consumes = {"multipart/form-data"})
+    public ResponseEntity<AuthenticationResponse> register(
+        @RequestPart("user") User user, 
+        @RequestPart(value = "imageFile", required = false) MultipartFile imageFile 
+    ) {
+    return ResponseEntity.ok(authService.register(user, imageFile));
     }
 
     @PostMapping("/login")

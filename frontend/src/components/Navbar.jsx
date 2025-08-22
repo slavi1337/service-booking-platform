@@ -25,15 +25,23 @@ const Navbar = () => {
       <Toolbar>
         <Typography
           component={RouterLink}
-          sx={{ flexGrow: 1, color: 'inherit', textDecoration: 'none' }}
+          sx={{ color: 'inherit', textDecoration: 'none' }}
           to="/"
           variant="h6"
         >
           Booking Platform
         </Typography>
 
+        <Box sx={{ flexGrow: 1 }} />
+
         {user ? (
-          <Box>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Typography sx={{ mr: 2 }} variant="subtitle1">
+              Welcome,{' '}
+              {user.role === 'ROLE_TENANT'
+                ? user.businessName
+                : `${user.firstName} ${user.lastName}`}
+            </Typography>
             <Button color="inherit" component={RouterLink} to={dashboardPath}>
               My Dashboard
             </Button>

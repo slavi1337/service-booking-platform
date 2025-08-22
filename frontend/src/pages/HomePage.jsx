@@ -34,20 +34,6 @@ const HomePage = () => {
     >
       <CssBaseline />
 
-      {user ? (
-        <Box
-          sx={{
-            position: 'absolute',
-            top: 16,
-            right: 16,
-          }}
-        >
-          <Button color="primary" onClick={logout} variant="contained">
-            Logout
-          </Button>
-        </Box>
-      ) : null}
-
       <Container
         maxWidth="sm"
         sx={{

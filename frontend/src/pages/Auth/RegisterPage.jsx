@@ -14,6 +14,7 @@ import {
   FormHelperText,
   Paper,
   CssBaseline,
+  Input,
 } from '@mui/material'
 import { Controller, useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
@@ -26,6 +27,7 @@ const RegisterPage = () => {
     handleSubmit,
     control,
     watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(registerSchema),
@@ -36,6 +38,7 @@ const RegisterPage = () => {
       password: '',
       businessName: '',
       businessDescription: '',
+      image: undefined,
       role: 'ROLE_USER',
     },
   })
@@ -47,9 +50,18 @@ const RegisterPage = () => {
 
   const onSubmit = async (data) => {
     setServerError(null)
+    const formData = new FormData()
+    const userData = { ...data }
+    delete userData.image
+    formData.append('user', new Blob([JSON.stringify(userData)], { type: 'application/json' }))
+
+    if (data.image && data.image.length > 0) {
+      formData.append('imageFile', data.image[0])
+    }
+
     setSuccessMessage('')
     try {
-      await registerUser(data)
+      await registerUser(formData)
       setSuccessMessage('Registration successful! Redirecting to login...')
       setTimeout(() => {
         navigate('/login')
@@ -57,6 +69,18 @@ const RegisterPage = () => {
     } catch (err) {
       setServerError(err.response?.data?.message || 'An error occurred during registration.')
     }
+  }
+
+  const textFieldStyles = {
+    '& .MuiOutlinedInput-root': {
+      '& fieldset': { borderColor: 'rgba(88, 186, 216, 1)' },
+      '&:hover fieldset': { borderColor: 'rgba(88, 186, 216, 1)' },
+      '&.Mui-focused fieldset': { borderColor: 'rgba(88, 186, 216, 1)' },
+      '& input, & textarea': { color: 'rgba(88, 186, 216, 1)' },
+    },
+    '& label, & label.Mui-focused': {
+      color: 'rgba(88, 186, 216, 1)',
+    },
   }
 
   return (
@@ -173,24 +197,8 @@ const RegisterPage = () => {
                         label="First Name"
                         autoFocus
                         error={!!errors.firstName}
-                        helperText={errors.firstName ? errors.firstName.message : ''}
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            '& fieldset': {
-                              borderColor: 'rgba(88, 186, 216, 1)',
-                            },
-                            '&:hover fieldset': {
-                              borderColor: 'rgba(88, 186, 216, 1)',
-                            },
-                            '&.Mui-focused fieldset': {
-                              borderColor: 'rgba(88, 186, 216, 1)',
-                            },
-                            '& input': { color: 'rgba(88, 186, 216, 1)' },
-                          },
-                          '& label': {
-                            color: 'rgba(88, 186, 216, 1)',
-                          },
-                        }}
+                        helperText={errors.firstName?.message}
+                        sx={textFieldStyles}
                       />
                     )}
                   />
@@ -206,24 +214,8 @@ const RegisterPage = () => {
                         id="lastName"
                         label="Last Name"
                         error={!!errors.lastName}
-                        helperText={errors.lastName ? errors.lastName.message : ''}
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            '& fieldset': {
-                              borderColor: 'rgba(88, 186, 216, 1)',
-                            },
-                            '&:hover fieldset': {
-                              borderColor: 'rgba(88, 186, 216, 1)',
-                            },
-                            '&.Mui-focused fieldset': {
-                              borderColor: 'rgba(88, 186, 216, 1)',
-                            },
-                            '& input': { color: 'rgba(88, 186, 216, 1)' },
-                          },
-                          '& label': {
-                            color: 'rgba(88, 186, 216, 1)',
-                          },
-                        }}
+                        helperText={errors.lastName?.message}
+                        sx={textFieldStyles}
                       />
                     )}
                   />
@@ -245,24 +237,8 @@ const RegisterPage = () => {
                         label="Business Name"
                         autoFocus
                         error={!!errors.businessName}
-                        helperText={errors.businessName ? errors.businessName.message : ''}
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            '& fieldset': {
-                              borderColor: 'rgba(88, 186, 216, 1)',
-                            },
-                            '&:hover fieldset': {
-                              borderColor: 'rgba(88, 186, 216, 1)',
-                            },
-                            '&.Mui-focused fieldset': {
-                              borderColor: 'rgba(88, 186, 216, 1)',
-                            },
-                            '& input': { color: 'rgba(88, 186, 216, 1)' },
-                          },
-                          '& label': {
-                            color: 'rgba(88, 186, 216, 1)',
-                          },
-                        }}
+                        helperText={errors.businessName?.message}
+                        sx={textFieldStyles}
                       />
                     )}
                   />
@@ -279,31 +255,34 @@ const RegisterPage = () => {
                         id="businessDescription"
                         label="Business Description (Optional)"
                         error={!!errors.businessDescription}
-                        helperText={
-                          errors.businessDescription ? errors.businessDescription.message : ''
-                        }
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            '& fieldset': {
-                              borderColor: 'rgba(88, 186, 216, 1)',
-                            },
-                            '&:hover fieldset': {
-                              borderColor: 'rgba(88, 186, 216, 1)',
-                            },
-                            '&.Mui-focused fieldset': {
-                              borderColor: 'rgba(88, 186, 216, 1)',
-                            },
-                            '& input': { color: 'rgba(88, 186, 216, 1)' },
-                          },
-                          '& input, & textarea': { color: 'rgba(88, 186, 216, 1)' },
-
-                          '& label': {
-                            color: 'rgba(88, 186, 216, 1)',
-                          },
-                        }}
+                        helperText={errors.businessDescription?.message}
+                        sx={textFieldStyles}
                       />
                     )}
                   />
+                  <FormControl fullWidth margin="normal" error={!!errors.image}>
+                    <FormLabel sx={{ color: 'rgba(88, 186, 216, 1)' }}>
+                      Profile Image or Logo
+                    </FormLabel>
+                    <Button variant="contained" component="label" sx={{ mt: 1 }}>
+                      Upload File
+                      <input
+                        type="file"
+                        hidden
+                        onChange={(e) => setValue('image', e.target.files)}
+                      />
+                    </Button>
+                    {watch('image') && watch('image').length > 0 && (
+                      <Typography variant="body2" sx={{ mt: 1, color: 'rgba(88, 186, 216, 1)' }}>
+                        {watch('image')[0].name}
+                      </Typography>
+                    )}
+                    {errors.image && (
+                      <FormHelperText sx={{ color: '#ffcdd2' }}>
+                        {errors.image.message}
+                      </FormHelperText>
+                    )}
+                  </FormControl>
                 </>
               )}
 
@@ -320,24 +299,8 @@ const RegisterPage = () => {
                     label="Email Address"
                     autoComplete="email"
                     error={!!errors.email}
-                    helperText={errors.email ? errors.email.message : ''}
-                    sx={{
-                      '& .MuiOutlinedInput-root': {
-                        '& fieldset': {
-                          borderColor: 'rgba(88, 186, 216, 1)',
-                        },
-                        '&:hover fieldset': {
-                          borderColor: 'rgba(88, 186, 216, 1)',
-                        },
-                        '&.Mui-focused fieldset': {
-                          borderColor: 'rgba(88, 186, 216, 1)',
-                        },
-                        '& input': { color: 'rgba(88, 186, 216, 1)' },
-                      },
-                      '& label': {
-                        color: 'rgba(88, 186, 216, 1)',
-                      },
-                    }}
+                    helperText={errors.email?.message}
+                    sx={textFieldStyles}
                   />
                 )}
               />
@@ -354,24 +317,8 @@ const RegisterPage = () => {
                     type="password"
                     id="password"
                     error={!!errors.password}
-                    helperText={errors.password ? errors.password.message : ''}
-                    sx={{
-                      '& .MuiOutlinedInput-root': {
-                        '& fieldset': {
-                          borderColor: 'rgba(88, 186, 216, 1)',
-                        },
-                        '&:hover fieldset': {
-                          borderColor: 'rgba(88, 186, 216, 1)',
-                        },
-                        '&.Mui-focused fieldset': {
-                          borderColor: 'rgba(88, 186, 216, 1)',
-                        },
-                        '& input': { color: 'rgba(88, 186, 216, 1)' },
-                      },
-                      '& label': {
-                        color: 'rgba(88, 186, 216, 1)',
-                      },
-                    }}
+                    helperText={errors.password?.message}
+                    sx={textFieldStyles}
                   />
                 )}
               />

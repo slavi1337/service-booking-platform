@@ -18,8 +18,11 @@ apiClient.interceptors.request.use(
     return Promise.reject(error)
   },
 )
-
-export const registerUser = (userData) => apiClient.post('/auth/register', userData)
+export const registerUser = (formData) => {
+  return apiClient.post('/auth/register', formData, {
+    headers: {},
+  })
+}
 export const loginUser = (credentials) => apiClient.post('/auth/login', credentials)
 export const createService = (serviceData, tenantId) =>
   apiClient.post(`/services?tenantId=${tenantId}`, serviceData)
@@ -69,10 +72,10 @@ export const deleteService = (serviceId) => {
 }
 
 export const updateService = (serviceId, serviceData) => {
-  return apiClient.put(`/services/${serviceId}`, serviceData);
+  return apiClient.put(`/services/${serviceId}`, serviceData)
 }
 
-export const getAllUsers = () => apiClient.get('/admin/users');
-export const lockUser = (userId) => apiClient.patch(`/admin/users/${userId}/lock`);
-export const unlockUser = (userId) => apiClient.patch(`/admin/users/${userId}/unlock`);
-export const deleteUser = (userId) => apiClient.delete(`/admin/users/${userId}`);
+export const getAllUsers = () => apiClient.get('/admin/users')
+export const lockUser = (userId) => apiClient.patch(`/admin/users/${userId}/lock`)
+export const unlockUser = (userId) => apiClient.patch(`/admin/users/${userId}/unlock`)
+export const deleteUser = (userId) => apiClient.delete(`/admin/users/${userId}`)
