@@ -98,5 +98,15 @@ You will need to run the backend and frontend in separate terminals.
 Once both are running, you can open your browser and navigate to the frontend URL to use the application.
 
 ## Screenshots
+![Login](https://github.com/user-attachments/assets/1c49f070-793b-4402-b339-4b139f588e4c)
+![Registration](https://github.com/user-attachments/assets/bb315dff-4063-4aef-b143-d31ac8302a6f)
+![TenantRegistration](https://github.com/user-attachments/assets/25924669-0d68-49a8-b313-9505d60454e9)
+![EmailVerif](https://github.com/user-attachments/assets/70fa011b-3c22-434b-ac14-7a003840ab8b)
+![MyServices](https://github.com/user-attachments/assets/a8cdbcd1-6884-453c-868b-ff3648d46d56)
+![Services](https://github.com/user-attachments/assets/5bc25f7b-ee36-42d0-9e39-fb4ce22b748f)
+![Booking](https://github.com/user-attachments/assets/6e14213b-4d6a-41b6-bcb0-9280663f1ff3)
+![MyBookings](https://github.com/user-attachments/assets/515aeee7-a379-4b08-96cc-9f0e8cb5bcac)
+![ManageBookings](https://github.com/user-attachments/assets/e8254a0a-1d4d-4ae0-8350-cf159fec991a)
 
-will add later
+
+
